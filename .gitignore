@@ -25,7 +25,7 @@ venv/
 env/
 .env/
 
-# Uploads (user-generated content — not in repo)
+# Uploads (user-generated content)
 app/static/uploads/
 
 # IDE
@@ -43,3 +43,13 @@ Thumbs.db
 
 # Flask session
 flask_session/
+
+# Admin/test scripts
+reset_admin.py
+check_admin.py
+check_users.py
+clean_db.py
+verify_db.py
+check.py
+check_reg.py
+test_*.py
