@@ -3,9 +3,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from app import create_app, db
 
+# 'app' must be at module level — used by both Vercel and gunicorn
 app = create_app()
 
-# Auto-create tables and seed admin on first start
+# Auto-create tables and seed admin
 with app.app_context():
     db.create_all()
     try:
