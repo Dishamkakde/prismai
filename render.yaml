@@ -3,16 +3,18 @@ services:
     name: prismai
     env: python
     plan: free
+    repo: https://github.com/Dishamkakde/prismai
+    branch: main
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn run:app
+    startCommand: python run.py
     envVars:
       - key: SECRET_KEY
-        generateValue: true
+        value: prismai-rnsit-secret-key-2025-xK9mPqR7bZ
       - key: ADMIN_EMAIL
         value: admin@prismai.edu
       - key: ADMIN_PASSWORD
         value: PrismAdmin@2025
       - key: FLASK_ENV
         value: production
-      - key: PYTHON_VERSION
-        value: 3.11.9
+      - key: PORT
+        value: 10000
