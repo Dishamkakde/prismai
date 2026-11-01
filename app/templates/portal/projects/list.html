@@ -1,0 +1,55 @@
+{% extends 'portal_base.html' %}
+{% block title %}My Projects — PRISM AI{% endblock %}
+{% block breadcrumb %}My Projects{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-project-diagram"></i> My Projects</h1>
+    {% if current_user.is_admin() %}
+    <a href="{{ url_for('projects.create_project') }}" class="btn-primary-sm">
+        <i class="fas fa-plus"></i> New Project
+    </a>
+    {% endif %}
+</div>
+
+{% if projects %}
+<div class="projects-portal-grid">
+    {% for project in projects %}
+    <a href="{{ url_for('projects.project_detail', project_id=project.id) }}" class="project-portal-card">
+        <div class="ppc-header">
+            <div class="ppc-meta">
+                <span class="ppc-id">{{ project.project_id }}</span>
+                <span class="ppc-category">{{ project.category or 'Research' }}</span>
+            </div>
+            <span class="ppc-status status-{{ project.status.lower().replace(' ', '-') }}">{{ project.status }}</span>
+        </div>
+        <h3>{{ project.title }}</h3>
+        <p>{{ project.description[:100] if project.description else 'No description.' }}{% if project.description and project.description|length > 100 %}...{% endif %}</p>
+        <div class="ppc-team">
+            <i class="fas fa-users"></i> {{ project.members|length }} member{{ 's' if project.members|length != 1 }}
+            {% if project.lead %}
+            &bull; Lead: {{ project.lead.profile.full_name if project.lead.profile else project.lead.email }}
+            {% endif %}
+        </div>
+        <div class="ppc-progress">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ project.progress_percent }}%"></div>
+            </div>
+            <span>{{ project.progress_percent }}%</span>
+        </div>
+        {% if project.expected_end_date %}
+        <p class="ppc-deadline">
+            <i class="fas fa-calendar-alt"></i>
+            Due {{ project.expected_end_date.strftime('%b %d, %Y') }}
+        </p>
+        {% endif %}
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state large">
+    <i class="fas fa-project-diagram"></i>
+    <h3>No projects assigned yet</h3>
+    <p>You'll see your projects here once an administrator assigns you.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Projects — PRISM AI{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="page-hero-content">
+    <div class="section-tag">Our Work</div>
+    <h1>Research Projects</h1>
+    <p>AI projects built and researched by PRISM AI members at RNSIT.</p>
+  </div>
+</section>
+
+<section class="projects-section">
+  <div class="section-container">
+    {% if projects %}
+    <div class="projects-grid">
+      {% for project in projects %}
+      <div class="project-card">
+        <div class="project-card-header">
+          <span class="project-category">{{ project.category or 'AI Research' }}</span>
+          <span class="project-status status-{{ project.status.lower().replace(' ', '-') }}">{{ project.status }}</span>
+        </div>
+        <h3>{{ project.title }}</h3>
+        <p>{{ project.description[:150] if project.description else '' }}{% if project.description and project.description|length > 150 %}...{% endif %}</p>
+        {% if project.technologies %}
+        <div class="tech-tags">
+          {% for tech in project.technologies.split(',')[:4] %}
+          <span class="tech-tag">{{ tech.strip() }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <div class="project-progress" style="margin-top:0.75rem">
+          <div class="progress-label">
+            <span>Progress</span><span>{{ project.progress_percent }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:{{ project.progress_percent }}%"></div>
+          </div>
+        </div>
+        {% if project.github_url %}
+        <a href="{{ project.github_url }}" target="_blank" class="project-link">
+          <i class="fab fa-github"></i> View on GitHub
+        </a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state large">
+      <i class="fas fa-project-diagram"></i>
+      <h3>No public projects yet</h3>
+      <p>Projects will appear here once members complete their work and admin makes them public.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

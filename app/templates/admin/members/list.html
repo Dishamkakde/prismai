@@ -1,0 +1,53 @@
+{% extends 'portal_base.html' %}
+{% block title %}Members — Admin{% endblock %}
+{% block breadcrumb %}Admin / Members{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-users"></i> All Members</h1>
+    <div class="title-row-actions">
+        <a href="{{ url_for('admin.invite_member') }}" class="btn-primary-sm"><i class="fas fa-user-plus"></i> Invite Member</a>
+        <a href="{{ url_for('admin.export_members') }}" class="btn-sm-outline"><i class="fas fa-download"></i> Export CSV</a>
+    </div>
+</div>
+<div class="table-search-row">
+    <input type="text" id="memberSearch" placeholder="Search members..." oninput="filterTable()" class="table-search">
+</div>
+<div class="table-wrap">
+    <table class="portal-table" id="membersTable">
+        <thead>
+            <tr><th>Member ID</th><th>Name</th><th>Email</th><th>Role</th><th>Department</th><th>Year</th><th>Points</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td><code>{{ user.member_id }}</code></td>
+                <td><strong>{{ user.profile.full_name if user.profile else '—' }}</strong></td>
+                <td>{{ user.email }}</td>
+                <td><span class="role-badge role-{{ user.role }}">{{ user.role.replace('_', ' ').title() }}</span></td>
+                <td>{{ user.profile.department if user.profile else '—' }}</td>
+                <td>{{ user.profile.academic_year if user.profile else '—' }}</td>
+                <td><strong>{{ user.profile.contribution_points if user.profile else 0 }}</strong></td>
+                <td>
+                    <span class="status-dot {{ 'active' if user.is_active else 'inactive' }}"></span>
+                    {{ 'Active' if user.is_active else 'Inactive' }}
+                </td>
+                <td class="table-actions">
+                    <a href="{{ url_for('admin.member_detail', user_id=user.id) }}" class="table-link">View</a>
+                    <a href="{{ url_for('admin.edit_member', user_id=user.id) }}" class="table-link">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function filterTable() {
+    const q = document.getElementById('memberSearch').value.toLowerCase();
+    document.querySelectorAll('#membersTable tbody tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

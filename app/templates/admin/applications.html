@@ -1,0 +1,132 @@
+{% extends 'portal_base.html' %}
+{% block title %}Member Applications — Admin{% endblock %}
+{% block breadcrumb %}Admin / Applications{% endblock %}
+{% block content %}
+<div class="page-title-row">
+  <h1><i class="fas fa-file-alt"></i> Membership Applications</h1>
+</div>
+
+{% if pending %}
+<h3 class="sub-section-title" style="margin-bottom:1rem">
+  Pending Review ({{ pending|length }})
+</h3>
+<div class="table-wrap" style="margin-bottom:2.5rem">
+  <table class="portal-table">
+    <thead>
+      <tr><th>Name</th><th>Email</th><th>USN</th><th>Branch</th><th>Year</th><th>Department</th><th>Submitted</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for a in pending %}
+      <tr>
+        <td><strong>{{ a.full_name }}</strong></td>
+        <td>{{ a.email }}</td>
+        <td>{{ a.usn or '—' }}</td>
+        <td>{{ a.branch or '—' }}</td>
+        <td>{{ a.academic_year or '—' }}</td>
+        <td>{{ a.department or '—' }}</td>
+        <td>{{ a.submitted_at.strftime('%b %d, %Y') }}</td>
+        <td>
+          <button onclick="toggleReason('reason-{{a.id}}')" class="table-link">
+            View Reason
+          </button>
+          <div id="reason-{{a.id}}" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;margin-top:6px;font-size:0.82rem;color:var(--text-secondary);max-width:320px">
+            {{ a.reason or 'No reason provided.' }}
+          </div>
+          <div style="display:flex;gap:6px;margin-top:8px">
+            <form method="POST" action="{{ url_for('admin.approve_application', app_id=a.id) }}" style="display:inline">
+              <input type="hidden" name="admin_notes" value="">
+              <button type="submit" class="btn-approve">
+                <i class="fas fa-check"></i> Approve
+              </button>
+            </form>
+            <form method="POST" action="{{ url_for('admin.reject_application', app_id=a.id) }}"
+                  style="display:inline"
+                  onsubmit="return confirm('Reject this application?')">
+              <input type="hidden" name="admin_notes" value="">
+              <button type="submit" class="btn-reject">
+                <i class="fas fa-times"></i> Reject
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state sm" style="margin-bottom:2rem">
+  <i class="fas fa-check-circle"></i>
+  <p>No pending applications.</p>
+</div>
+{% endif %}
+
+{% if reviewed %}
+<h3 class="sub-section-title" style="margin-bottom:1rem">Recently Reviewed</h3>
+<div class="table-wrap">
+  <table class="portal-table">
+    <thead>
+      <tr><th>Name</th><th>Email</th><th>Department</th><th>Status</th><th>Reviewed</th><th>Activation</th></tr>
+    </thead>
+    <tbody>
+      {% for a in reviewed %}
+      <tr>
+        <td><strong>{{ a.full_name }}</strong></td>
+        <td>{{ a.email }}</td>
+        <td>{{ a.department or '—' }}</td>
+        <td>
+          <span class="badge {{ 'badge-green' if a.status=='approved' else 'badge-red' }}">
+            {{ a.status.title() }}
+          </span>
+        </td>
+        <td>{{ a.reviewed_at.strftime('%b %d, %Y') if a.reviewed_at else '—' }}</td>
+        <td>
+          {% if a.status == 'approved' %}
+            {% if a.user_id %}
+              <span class="badge badge-green"><i class="fas fa-check"></i> Account Active</span>
+            {% elif a.set_password_token %}
+              {% set act_url = url_for('auth.set_password', token=a.set_password_token, _external=True) %}
+              <div style="display:flex;gap:6px;align-items:center">
+                <input type="text" value="{{ act_url }}" readonly
+                       id="act-{{ a.id }}"
+                       style="font-size:0.68rem;padding:4px 7px;width:200px;font-family:monospace">
+                <button class="copy-btn" onclick="copyLink('act-{{a.id}}',this)">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              <small style="color:var(--text-muted);font-size:0.72rem">
+                Expires {{ a.set_password_expires.strftime('%b %d') if a.set_password_expires else '' }}
+              </small>
+            {% else %}
+              <span style="font-size:0.8rem;color:var(--text-muted)">Link expired</span>
+            {% endif %}
+          {% else %}
+            —
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleReason(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+function copyLink(inputId, btn) {
+  const input = document.getElementById(inputId);
+  input.select();
+  navigator.clipboard.writeText(input.value).then(() => {
+    const icon = btn.querySelector('i');
+    icon.className = 'fas fa-check';
+    btn.style.color = 'var(--success)';
+    setTimeout(() => { icon.className = 'fas fa-copy'; btn.style.color = ''; }, 2000);
+  });
+}
+</script>
+{% endblock %}

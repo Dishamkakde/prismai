@@ -1,0 +1,37 @@
+{% extends 'portal_base.html' %}
+{% block title %}All Projects — Admin{% endblock %}
+{% block breadcrumb %}Admin / Projects{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-folder"></i> All Projects</h1>
+    <a href="{{ url_for('projects.create_project') }}" class="btn-primary-sm"><i class="fas fa-plus"></i> New Project</a>
+</div>
+<div class="table-wrap">
+    <table class="portal-table">
+        <thead>
+            <tr><th>ID</th><th>Title</th><th>Category</th><th>Lead</th><th>Members</th><th>Status</th><th>Progress</th><th>Due</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for p in projects %}
+            <tr>
+                <td><code>{{ p.project_id }}</code></td>
+                <td><strong>{{ p.title }}</strong></td>
+                <td>{{ p.category or '—' }}</td>
+                <td>{{ p.lead.profile.full_name if p.lead and p.lead.profile else '—' }}</td>
+                <td>{{ p.members|length }}</td>
+                <td><span class="status-mini status-{{ p.status.lower().replace(' ','-') }}">{{ p.status }}</span></td>
+                <td>
+                    <div class="progress-bar sm"><div class="progress-fill" style="width:{{ p.progress_percent }}%"></div></div>
+                    <small>{{ p.progress_percent }}%</small>
+                </td>
+                <td>{{ p.expected_end_date.strftime('%b %d, %Y') if p.expected_end_date else '—' }}</td>
+                <td class="table-actions">
+                    <a href="{{ url_for('projects.project_detail', project_id=p.id) }}" class="table-link">View</a>
+                    <a href="{{ url_for('projects.edit_project', project_id=p.id) }}" class="table-link">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

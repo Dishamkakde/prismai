@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Portal — PRISM AI{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/logo_icon.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="portal-body">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <a href="{{ url_for('main.index') }}" class="sidebar-brand">
+      <img src="{{ url_for('static', filename='img/logo_icon.png') }}" alt="PRISM AI" class="sidebar-logo">
+      <span>PRISM <strong>AI</strong></span>
+    </a>
+    <button class="sidebar-close" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
+  </div>
+
+  <div class="sidebar-profile">
+    {% if current_user.profile and current_user.profile.profile_picture != 'default_avatar.png' %}
+      <img src="{{ url_for('static', filename='uploads/' + current_user.profile.profile_picture) }}" alt="" class="sidebar-avatar">
+    {% else %}
+      <div class="sidebar-avatar-placeholder">{{ current_user.profile.full_name[0].upper() if current_user.profile else 'M' }}</div>
+    {% endif %}
+    <div>
+      <p class="sidebar-name">{{ current_user.profile.full_name if current_user.profile else 'Member' }}</p>
+      <p class="sidebar-role">{{ current_user.role.replace('_',' ').title() }}</p>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <span class="nav-section-label">Main</span>
+      <a href="{{ url_for('portal.dashboard') }}" class="sidebar-link {% if request.endpoint=='portal.dashboard' %}active{% endif %}">
+        <i class="fas fa-th-large"></i> Dashboard
+      </a>
+      <a href="{{ url_for('portal.profile') }}" class="sidebar-link {% if request.endpoint=='portal.profile' %}active{% endif %}">
+        <i class="fas fa-user"></i> My Profile
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-section-label">Work</span>
+      <a href="{{ url_for('projects.my_projects') }}" class="sidebar-link {% if 'projects' in request.endpoint %}active{% endif %}">
+        <i class="fas fa-project-diagram"></i> My Projects
+      </a>
+      <a href="{{ url_for('tasks.my_tasks') }}" class="sidebar-link {% if 'tasks' in request.endpoint %}active{% endif %}">
+        <i class="fas fa-tasks"></i> My Tasks
+        {% set overdue = current_user.assigned_tasks|selectattr('due_date')|list|length %}
+      </a>
+      <a href="{{ url_for('reports.my_reports') }}" class="sidebar-link {% if 'reports' in request.endpoint %}active{% endif %}">
+        <i class="fas fa-file-alt"></i> Weekly Reports
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-section-label">Research</span>
+      <a href="{{ url_for('research.hub') }}" class="sidebar-link {% if 'research' in request.endpoint %}active{% endif %}">
+        <i class="fas fa-flask"></i> Research Hub
+      </a>
+      <a href="{{ url_for('documents.library') }}" class="sidebar-link {% if 'documents' in request.endpoint %}active{% endif %}">
+        <i class="fas fa-folder-open"></i> Resources
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-section-label">Connect</span>
+      <a href="{{ url_for('meetings.my_meetings') }}" class="sidebar-link {% if 'meetings' in request.endpoint %}active{% endif %}">
+        <i class="fas fa-calendar-alt"></i> Meetings
+      </a>
+      <a href="{{ url_for('announcements.list_announcements') }}" class="sidebar-link {% if 'announcements' in request.endpoint %}active{% endif %}">
+        <i class="fas fa-bullhorn"></i> Announcements
+      </a>
+      <a href="{{ url_for('portal.notifications') }}" class="sidebar-link {% if request.endpoint=='portal.notifications' %}active{% endif %}">
+        <i class="fas fa-bell"></i> Notifications
+        {% set unread = current_user.notifications.filter_by(is_read=False).count() %}
+        {% if unread > 0 %}<span class="badge-pill danger">{{ unread }}</span>{% endif %}
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-section-label">Growth</span>
+      <a href="{{ url_for('achievements.my_achievements') }}" class="sidebar-link {% if request.endpoint=='achievements.my_achievements' %}active{% endif %}">
+        <i class="fas fa-trophy"></i> Achievements
+      </a>
+      <a href="{{ url_for('achievements.leaderboard') }}" class="sidebar-link {% if request.endpoint=='achievements.leaderboard' %}active{% endif %}">
+        <i class="fas fa-chart-bar"></i> Leaderboard
+      </a>
+    </div>
+
+    {% if current_user.is_project_lead() and not current_user.is_admin() %}
+    <div class="nav-section">
+      <span class="nav-section-label">Lead Tools</span>
+      <a href="{{ url_for('tasks.create_task') }}" class="sidebar-link lead-link">
+        <i class="fas fa-plus-circle"></i> Create Task
+      </a>
+      <a href="{{ url_for('reports.team_reports') }}" class="sidebar-link lead-link">
+        <i class="fas fa-clipboard-list"></i> Team Reports
+      </a>
+      <a href="{{ url_for('meetings.schedule_meeting') }}" class="sidebar-link lead-link">
+        <i class="fas fa-calendar-plus"></i> Schedule Meeting
+      </a>
+    </div>
+    {% endif %}
+
+    {% if current_user.is_admin() %}
+    <div class="nav-section">
+      <span class="nav-section-label">Administration</span>
+      <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link admin-link {% if request.endpoint=='admin.dashboard' %}active{% endif %}">
+        <i class="fas fa-shield-alt"></i> Admin Dashboard
+      </a>
+      <a href="{{ url_for('admin.pending_members') }}" class="sidebar-link admin-link {% if request.endpoint=='admin.pending_members' %}active{% endif %}">
+        <i class="fas fa-user-clock"></i> Pending Approvals
+      </a>
+      <a href="{{ url_for('admin.change_requests') }}" class="sidebar-link admin-link {% if 'change_request' in request.endpoint %}active{% endif %}">
+        <i class="fas fa-exchange-alt"></i> Change Requests
+      </a>
+      <a href="{{ url_for('admin.members') }}" class="sidebar-link admin-link {% if 'admin.member' in request.endpoint %}active{% endif %}">
+        <i class="fas fa-users"></i> Members
+      </a>
+      <a href="{{ url_for('admin.projects') }}" class="sidebar-link admin-link {% if request.endpoint=='admin.projects' %}active{% endif %}">
+        <i class="fas fa-folder"></i> All Projects
+      </a>
+      <a href="{{ url_for('admin.analytics') }}" class="sidebar-link admin-link {% if request.endpoint=='admin.analytics' %}active{% endif %}">
+        <i class="fas fa-chart-pie"></i> Analytics
+      </a>
+      <a href="{{ url_for('admin.achievements') }}" class="sidebar-link admin-link {% if request.endpoint=='admin.achievements' %}active{% endif %}">
+        <i class="fas fa-medal"></i> Verify Achievements
+      </a>
+      <a href="{{ url_for('admin.invite_member') }}" class="sidebar-link admin-link">
+        <i class="fas fa-user-plus"></i> Invite Member
+      </a>
+    </div>
+    {% endif %}
+
+    <div class="nav-section">
+      <a href="{{ url_for('portal.settings') }}" class="sidebar-link {% if request.endpoint=='portal.settings' %}active{% endif %}">
+        <i class="fas fa-cog"></i> Settings
+      </a>
+      <a href="{{ url_for('main.index') }}" class="sidebar-link">
+        <i class="fas fa-globe"></i> Public Site
+      </a>
+      <a href="{{ url_for('auth.logout') }}" class="sidebar-link logout-link">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+    </div>
+  </nav>
+</aside>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- MAIN -->
+<div class="portal-main" id="portalMain">
+  <header class="portal-topbar">
+    <div class="topbar-left">
+      <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <div class="breadcrumb">{% block breadcrumb %}Portal{% endblock %}</div>
+    </div>
+    <div class="topbar-right">
+      <a href="{{ url_for('portal.notifications') }}" class="topbar-icon">
+        <i class="fas fa-bell"></i>
+        {% set unread = current_user.notifications.filter_by(is_read=False).count() %}
+        {% if unread > 0 %}<span class="topbar-badge">{{ unread }}</span>{% endif %}
+      </a>
+      <a href="{{ url_for('portal.profile') }}" class="topbar-profile">
+        {% if current_user.profile and current_user.profile.profile_picture != 'default_avatar.png' %}
+          <img src="{{ url_for('static', filename='uploads/' + current_user.profile.profile_picture) }}" alt="">
+        {% else %}
+          <div class="topbar-avatar-placeholder">{{ current_user.profile.full_name[0].upper() if current_user.profile else 'M' }}</div>
+        {% endif %}
+      </a>
+    </div>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container portal-flash">
+      {% for category, message in messages %}
+      <div class="flash flash-{{ category }}">
+        <i class="fas fa-{% if category=='success' %}check-circle{% elif category=='danger' %}exclamation-circle{% elif category=='warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+        <span>{{ message }}</span>
+        <button onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <main class="portal-content">{% block content %}{% endblock %}</main>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/portal.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

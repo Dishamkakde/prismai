@@ -1,0 +1,60 @@
+{% extends 'portal_base.html' %}
+{% block title %}Review Change Request — Admin{% endblock %}
+{% block breadcrumb %}Admin / Change Requests / Review{% endblock %}
+{% block content %}
+<div class="form-page">
+    <div class="form-page-header">
+        <h1><i class="fas fa-exchange-alt"></i> Review Change Request</h1>
+        <p>Submitted by <strong>{{ cr.requester.profile.full_name if cr.requester.profile else cr.requester.email }}</strong>
+           on {{ cr.created_at.strftime('%B %d, %Y at %H:%M') }}</p>
+    </div>
+
+    <div class="change-request-card">
+        <div class="cr-meta">
+            <span class="badge badge-blue">{{ cr.target_type.title() }}</span>
+            <span class="badge badge-yellow">{{ cr.action.title() }}</span>
+            {% if cr.description %}
+            <p style="margin-top:0.75rem;color:var(--text-muted);font-size:0.9rem">
+                <strong>Description:</strong> {{ cr.description }}
+            </p>
+            {% endif %}
+        </div>
+
+        {% if changes %}
+        <h4 style="margin-top:1.25rem;font-size:0.85rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Requested Changes</h4>
+        <div class="changes-table">
+            <table class="portal-table" style="margin-top:0.5rem">
+                <thead>
+                    <tr><th>Field</th><th>Current Value</th><th>Requested Value</th></tr>
+                </thead>
+                <tbody>
+                    {% for field, vals in changes.items() %}
+                    <tr>
+                        <td><strong>{{ field.replace('_', ' ').title() }}</strong></td>
+                        <td style="color:var(--text-muted)">{{ vals.old or '(empty)' }}</td>
+                        <td style="color:#4ade80">{{ vals.new or '(empty)' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+
+    <form method="POST" class="portal-form" style="margin-top:1.5rem">
+        <div class="form-group">
+            <label>Admin Notes (optional)</label>
+            <textarea name="admin_notes" rows="3" placeholder="Reason for approval or rejection..."></textarea>
+        </div>
+        <div class="form-actions">
+            <a href="{{ url_for('admin.change_requests') }}" class="btn-cancel">← Back</a>
+            <button type="submit" name="decision" value="rejected" class="btn-danger-sm">
+                <i class="fas fa-times"></i> Reject Changes
+            </button>
+            <button type="submit" name="decision" value="approved" class="btn-primary-sm">
+                <i class="fas fa-check"></i> Approve & Apply Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

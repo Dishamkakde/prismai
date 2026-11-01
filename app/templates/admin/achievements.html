@@ -1,0 +1,46 @@
+{% extends 'portal_base.html' %}
+{% block title %}Achievements — Admin{% endblock %}
+{% block breadcrumb %}Admin / Achievements{% endblock %}
+{% block content %}
+<div class="page-title-row"><h1><i class="fas fa-medal"></i> Achievement Verification</h1></div>
+{% if pending %}
+<h3 class="sub-section-title">Pending Verification ({{ pending|length }})</h3>
+<div class="table-wrap">
+    <table class="portal-table">
+        <thead><tr><th>Member</th><th>Achievement</th><th>Category</th><th>Submitted</th><th>Cert</th><th></th></tr></thead>
+        <tbody>
+            {% for a in pending %}
+            <tr>
+                <td><strong>{{ a.member.profile.full_name if a.member.profile else '—' }}</strong></td>
+                <td>{{ a.title }}</td>
+                <td><span class="badge badge-blue">{{ a.category }}</span></td>
+                <td>{{ a.awarded_at.strftime('%b %d, %Y') }}</td>
+                <td>{% if a.certificate_path %}<a href="{{ url_for('static', filename='uploads/'+a.certificate_path) }}" target="_blank"><i class="fas fa-file"></i></a>{% else %}—{% endif %}</td>
+                <td><a href="{{ url_for('achievements.verify_achievement', ach_id=a.id) }}" class="btn-sm-primary">Review</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state sm"><i class="fas fa-check-circle"></i><p>No pending achievements.</p></div>
+{% endif %}
+
+<h3 class="sub-section-title" style="margin-top:2rem">Verified Achievements</h3>
+<div class="table-wrap">
+    <table class="portal-table">
+        <thead><tr><th>Member</th><th>Achievement</th><th>Category</th><th>Points</th><th>Verified By</th></tr></thead>
+        <tbody>
+            {% for a in verified %}
+            <tr>
+                <td>{{ a.member.profile.full_name if a.member.profile else '—' }}</td>
+                <td>{{ a.title }}</td>
+                <td>{{ a.category }}</td>
+                <td><strong>+{{ a.points }}</strong></td>
+                <td>{{ a.awarder.profile.full_name if a.awarder and a.awarder.profile else '—' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

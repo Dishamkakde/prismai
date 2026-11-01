@@ -1,0 +1,39 @@
+{% extends 'portal_base.html' %}
+{% block title %}Weekly Reports — PRISM AI{% endblock %}
+{% block breadcrumb %}Weekly Reports{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-file-alt"></i> Weekly Reports</h1>
+    <a href="{{ url_for('reports.submit_report') }}" class="btn-primary-sm">
+        <i class="fas fa-plus"></i> Submit Report
+    </a>
+</div>
+{% if reports %}
+<div class="reports-table-wrap">
+    <table class="portal-table">
+        <thead>
+            <tr><th>Week</th><th>Project</th><th>Status</th><th>Submitted</th><th>Feedback</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for r in reports %}
+            <tr>
+                <td>{{ r.week_start.strftime('%b %d') }} – {{ r.week_end.strftime('%b %d, %Y') }}</td>
+                <td>{{ r.project.title }}</td>
+                <td><span class="badge {{ 'badge-green' if r.status == 'Reviewed' else 'badge-blue' }}">{{ r.status }}</span></td>
+                <td>{{ r.submitted_at.strftime('%b %d, %H:%M') }}</td>
+                <td>{{ '✓ Received' if r.feedback else '—' }}</td>
+                <td><a href="{{ url_for('reports.view_report', report_id=r.id) }}" class="table-link">View</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state large">
+    <i class="fas fa-file-alt"></i>
+    <h3>No reports submitted yet</h3>
+    <p>Submit your first weekly progress report to keep your team informed.</p>
+    <a href="{{ url_for('reports.submit_report') }}" class="btn-primary-sm">Submit Report</a>
+</div>
+{% endif %}
+{% endblock %}

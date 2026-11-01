@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Events — PRISM AI{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="page-hero-content">
+    <div class="section-tag">Club Events</div>
+    <h1>Events & Workshops</h1>
+    <p>Hackathons, workshops, seminars and competitions organized by PRISM AI at RNSIT.</p>
+  </div>
+</section>
+
+<section style="padding:72px 0">
+  <div class="section-container">
+    <div class="empty-state large">
+      <i class="fas fa-calendar-alt"></i>
+      <h3>No events yet</h3>
+      <p>Upcoming PRISM AI events will appear here once published by the admin.</p>
+      {% if current_user.is_authenticated and current_user.is_admin() %}
+        <a href="{{ url_for('announcements.create_announcement') }}" class="btn-primary-sm" style="margin-top:1rem">
+          <i class="fas fa-plus"></i> Post an Announcement
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

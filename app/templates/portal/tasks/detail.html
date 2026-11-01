@@ -1,0 +1,145 @@
+{% extends 'portal_base.html' %}
+{% block title %}{{ task.title }} — PRISM AI{% endblock %}
+{% block breadcrumb %}Tasks / {{ task.title }}{% endblock %}
+{% block content %}
+<div class="task-detail-page">
+    <div class="task-detail-header">
+        <div class="tdh-meta">
+            <span class="priority-badge priority-{{ task.priority.lower() }}">{{ task.priority }}</span>
+            <span class="status-badge-task status-{{ task.status.lower().replace(' ', '-') }}">{{ task.status }}</span>
+            {% if task.is_overdue() %}<span class="overdue-badge">Overdue</span>{% endif %}
+        </div>
+        <h1>{{ task.title }}</h1>
+        <p class="task-project-link"><i class="fas fa-folder"></i> 
+            <a href="{{ url_for('projects.project_detail', project_id=task.project.id) }}">{{ task.project.title }}</a>
+        </p>
+    </div>
+
+    <div class="task-detail-grid">
+        <div class="task-main">
+            {% if task.description %}
+            <div class="task-section">
+                <h3>Description</h3>
+                <p>{{ task.description }}</p>
+            </div>
+            {% endif %}
+            {% if task.reference_materials %}
+            <div class="task-section">
+                <h3>Reference Materials</h3>
+                <p>{{ task.reference_materials }}</p>
+            </div>
+            {% endif %}
+
+            <!-- STATUS UPDATE (for assignee) -->
+            {% if is_assignee and task.status != 'Completed' %}
+            <div class="task-section">
+                <h3>Update Status</h3>
+                <form method="POST" action="{{ url_for('tasks.update_status', task_id=task.id) }}" class="status-form">
+                    <select name="status">
+                        <option value="To Do" {{ 'selected' if task.status == 'To Do' }}>To Do</option>
+                        <option value="In Progress" {{ 'selected' if task.status == 'In Progress' }}>In Progress</option>
+                        <option value="Under Review" {{ 'selected' if task.status == 'Under Review' }}>Under Review</option>
+                    </select>
+                    <button type="submit" class="btn-sm-primary">Update</button>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- SUBMIT WORK -->
+            {% if is_assignee and task.status not in ['Completed'] %}
+            <div class="task-section">
+                <h3>Submit Work</h3>
+                <form method="POST" action="{{ url_for('tasks.submit_task', task_id=task.id) }}" enctype="multipart/form-data" class="submit-form">
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea name="notes" rows="3" placeholder="Describe your submission..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Submission Link</label>
+                        <input type="url" name="submission_link" placeholder="GitHub, Drive, etc.">
+                    </div>
+                    <div class="form-group">
+                        <label>Attach File</label>
+                        <input type="file" name="submission_file">
+                    </div>
+                    <button type="submit" class="btn-primary-sm"><i class="fas fa-paper-plane"></i> Submit for Review</button>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- SUBMISSIONS (for lead/admin) -->
+            {% if (is_lead or is_admin) and submissions %}
+            <div class="task-section">
+                <h3>Submissions</h3>
+                {% for sub in submissions %}
+                <div class="submission-card status-{{ sub.status.lower() }}">
+                    <div class="sub-header">
+                        <strong>{{ sub.submitter.profile.full_name if sub.submitter.profile else sub.submitter.email }}</strong>
+                        <span class="sub-status">{{ sub.status }}</span>
+                        <small>{{ sub.submitted_at.strftime('%b %d, %H:%M') }}</small>
+                    </div>
+                    {% if sub.submission_notes %}<p>{{ sub.submission_notes }}</p>{% endif %}
+                    {% if sub.submission_link %}<a href="{{ sub.submission_link }}" target="_blank" class="sub-link"><i class="fas fa-external-link-alt"></i> View Submission</a>{% endif %}
+                    {% if sub.reviewer_notes %}<div class="sub-feedback"><strong>Feedback:</strong> {{ sub.reviewer_notes }}</div>{% endif %}
+                    {% if sub.status == 'Submitted' and (is_lead or is_admin) %}
+                    <form method="POST" action="{{ url_for('tasks.review_submission', submission_id=sub.id) }}" class="review-form">
+                        <textarea name="reviewer_notes" placeholder="Feedback (optional)" rows="2"></textarea>
+                        <div class="review-actions">
+                            <button name="decision" value="Approved" class="btn-approve"><i class="fas fa-check"></i> Approve</button>
+                            <button name="decision" value="Rejected" class="btn-reject"><i class="fas fa-times"></i> Request Revision</button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- COMMENTS -->
+            <div class="task-section">
+                <h3>Comments</h3>
+                <div class="comments-list">
+                    {% for comment in comments %}
+                    <div class="comment">
+                        <div class="comment-avatar">{{ comment.author.profile.full_name[0].upper() if comment.author.profile else 'M' }}</div>
+                        <div class="comment-body">
+                            <div class="comment-header">
+                                <strong>{{ comment.author.profile.full_name if comment.author.profile else comment.author.email }}</strong>
+                                <small>{{ comment.created_at.strftime('%b %d, %H:%M') }}</small>
+                            </div>
+                            <p>{{ comment.content }}</p>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="no-comments">No comments yet.</p>
+                    {% endfor %}
+                </div>
+                <form method="POST" action="{{ url_for('tasks.add_comment', task_id=task.id) }}" class="comment-form">
+                    <div class="comment-input-row">
+                        <div class="comment-avatar">{{ current_user.profile.full_name[0].upper() if current_user.profile else 'M' }}</div>
+                        <textarea name="content" placeholder="Write a comment..." rows="2" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-sm-primary">Post Comment</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="task-sidebar">
+            <div class="task-info-card">
+                <h4>Task Details</h4>
+                <div class="info-row"><span>Status</span><strong>{{ task.status }}</strong></div>
+                <div class="info-row"><span>Priority</span><strong>{{ task.priority }}</strong></div>
+                <div class="info-row"><span>Assigned To</span><strong>{{ task.assignee.profile.full_name if task.assignee and task.assignee.profile else '—' }}</strong></div>
+                <div class="info-row"><span>Project</span><strong>{{ task.project.title }}</strong></div>
+                {% if task.due_date %}
+                <div class="info-row"><span>Due Date</span><strong class="{{ 'overdue-text' if task.is_overdue() }}">{{ task.due_date.strftime('%b %d, %Y') }}</strong></div>
+                {% endif %}
+                {% if task.completed_at %}
+                <div class="info-row"><span>Completed</span><strong>{{ task.completed_at.strftime('%b %d, %Y') }}</strong></div>
+                {% endif %}
+                <div class="info-row"><span>Created</span><strong>{{ task.created_at.strftime('%b %d, %Y') }}</strong></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

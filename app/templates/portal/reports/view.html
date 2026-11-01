@@ -1,0 +1,45 @@
+{% extends 'portal_base.html' %}
+{% block title %}Report — PRISM AI{% endblock %}
+{% block breadcrumb %}Reports / View{% endblock %}
+{% block content %}
+<div class="report-view-page">
+    <div class="report-header">
+        <div>
+            <h1>Weekly Report</h1>
+            <p>{{ report.week_start.strftime('%B %d') }} – {{ report.week_end.strftime('%B %d, %Y') }}</p>
+            <p><i class="fas fa-folder"></i> {{ report.project.title }}</p>
+        </div>
+        <span class="badge {{ 'badge-green' if report.status == 'Reviewed' else 'badge-blue' }}">{{ report.status }}</span>
+    </div>
+    <div class="report-grid">
+        {% macro section(title, content) %}
+        {% if content %}
+        <div class="report-section">
+            <h4>{{ title }}</h4>
+            <p>{{ content }}</p>
+        </div>
+        {% endif %}
+        {% endmacro %}
+        {{ section('Work Completed', report.work_completed) }}
+        {{ section('Tasks Completed', report.tasks_completed) }}
+        {{ section('Current Work', report.current_work) }}
+        {{ section('Research Progress', report.research_progress) }}
+        {{ section('Challenges Faced', report.challenges) }}
+        {{ section('Next Week Goals', report.next_week_goals) }}
+        {{ section('Assistance Required', report.assistance_required) }}
+        {{ section('Supporting Links', report.supporting_links) }}
+    </div>
+    {% if report.feedback %}
+    <div class="feedback-box">
+        <h4><i class="fas fa-comment-alt"></i> Feedback from Lead</h4>
+        <p>{{ report.feedback }}</p>
+        {% if report.reviewer_user and report.reviewer_user.profile %}
+        <small>— {{ report.reviewer_user.profile.full_name }}, {{ report.reviewed_at.strftime('%b %d, %Y') }}</small>
+        {% endif %}
+    </div>
+    {% endif %}
+    <div class="form-actions">
+        <a href="{{ url_for('reports.my_reports') }}" class="btn-cancel">← Back to Reports</a>
+    </div>
+</div>
+{% endblock %}

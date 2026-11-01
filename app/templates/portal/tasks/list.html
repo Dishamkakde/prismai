@@ -1,0 +1,39 @@
+{% extends 'portal_base.html' %}
+{% block title %}My Tasks — PRISM AI{% endblock %}
+{% block breadcrumb %}My Tasks{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-tasks"></i> My Tasks</h1>
+    {% if current_user.is_project_lead() %}
+    <a href="{{ url_for('tasks.create_task') }}" class="btn-primary-sm"><i class="fas fa-plus"></i> Create Task</a>
+    {% endif %}
+</div>
+
+<div class="kanban-board">
+    {% for col_title, col_tasks, col_class in [('To Do', todo, 'todo'), ('In Progress', in_progress, 'in-progress'), ('Under Review', review, 'review'), ('Completed', completed, 'completed')] %}
+    <div class="kanban-col">
+        <div class="kanban-header status-{{ col_class }}">
+            <span>{{ col_title }}</span>
+            <span class="kanban-count">{{ col_tasks|length }}</span>
+        </div>
+        <div class="kanban-body">
+            {% for task in col_tasks %}
+            <a href="{{ url_for('tasks.task_detail', task_id=task.id) }}" class="kanban-card {{ 'overdue' if task.is_overdue() }}">
+                <div class="kc-priority priority-{{ task.priority.lower() }}">{{ task.priority }}</div>
+                <p class="kc-title">{{ task.title }}</p>
+                <p class="kc-project"><i class="fas fa-folder"></i> {{ task.project.title }}</p>
+                {% if task.due_date %}
+                <p class="kc-due {{ 'overdue-text' if task.is_overdue() }}">
+                    <i class="fas fa-calendar"></i> {{ task.due_date.strftime('%b %d, %Y') }}
+                    {% if task.is_overdue() %} <span class="overdue-label">Overdue</span>{% endif %}
+                </p>
+                {% endif %}
+            </a>
+            {% else %}
+            <div class="kanban-empty">No tasks</div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

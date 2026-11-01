@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+{% block title %}PRISM AI — Explore. Innovate. Impact.{% endblock %}
+
+{% block extra_css %}
+<style>
+#prisma-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  transition: opacity 0.8s ease;
+}
+#prisma-intro.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+#prisma-intro video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.intro-ui {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  user-select: none;
+}
+.intro-logo {
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 40px rgba(0,0,0,0.6);
+}
+.intro-logo span { color: rgba(255,255,255,0.65); font-weight: 400; }
+.intro-sub {
+  font-size: 0.72rem;
+  letter-spacing: 5px;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+.intro-enter {
+  position: absolute;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  animation: pulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+.intro-enter-label {
+  font-size: 0.7rem;
+  letter-spacing: 5px;
+  color: rgba(255,255,255,0.65);
+  text-transform: uppercase;
+}
+@keyframes pulse {
+  0%,100% { opacity: 0.5; transform: translateX(-50%) translateY(0); }
+  50%      { opacity: 1;   transform: translateX(-50%) translateY(7px); }
+}
+body.intro-on { overflow: hidden; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- VIDEO INTRO -->
+<div id="prisma-intro">
+  <video autoplay muted loop playsinline preload="auto">
+    <source src="https://www.image2url.com/r2/default/videos/1793529588677-54a480f3-0d65-47e8-982d-7ffd408acadf.mp4" type="video/mp4">
+  </video>
+  <div class="intro-ui">
+    <div class="intro-logo">PRISM <span>AI</span></div>
+    <div class="intro-sub">Explore &middot; Innovate &middot; Impact</div>
+  </div>
+  <div class="intro-enter">
+    <div class="intro-enter-label">Enter</div>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+         stroke="rgba(255,255,255,0.65)" stroke-width="1.5"
+         stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </div>
+</div>
+
+<!-- LANDING PAGE -->
+<div class="hero-bg-decor"></div>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow"><i class="fas fa-microchip"></i> AI Research Club &middot; RNSIT, Bengaluru</div>
+    <p class="hero-tagline">Explore &middot; Innovate &middot; Impact</p>
+    <h1 class="hero-title">
+      Building the Future<br>with <span class="hero-gradient">Artificial Intelligence</span>
+    </h1>
+    <p class="hero-subtitle">
+      PRISM AI is RNSIT's student-led AI community — where curiosity becomes innovation
+      and ideas turn into real-world impact through research, projects and collaboration.
+    </p>
+    <div class="hero-actions">
+      <a href="{{ url_for('main.about') }}" class="btn-primary-lg">
+        <i class="fas fa-compass"></i> Explore PRISM AI
+      </a>
+      <a href="{{ url_for('main.contact') }}" class="btn-outline-lg">
+        <i class="fas fa-paper-plane"></i> Get in Touch
+      </a>
+    </div>
+    {% if total_members > 0 or total_projects > 0 %}
+    <div class="hero-stats">
+      {% if total_members > 0 %}
+      <div class="hero-stat">
+        <span class="stat-number" data-count="{{ total_members }}">0</span>
+        <span class="stat-label">Members</span>
+      </div>
+      {% endif %}
+      {% if total_projects > 0 %}
+      <div class="hero-stat">
+        <span class="stat-number" data-count="{{ total_projects }}">0</span>
+        <span class="stat-label">Projects</span>
+      </div>
+      {% endif %}
+      {% if completed_projects > 0 %}
+      <div class="hero-stat">
+        <span class="stat-number" data-count="{{ completed_projects }}">0</span>
+        <span class="stat-label">Completed</span>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+  <div class="hero-visual">
+    <div class="hero-card floating">
+      <div class="hc-icon"><i class="fas fa-brain"></i></div>
+      <div class="hc-text"><p class="hc-title">AI Research</p><p class="hc-sub">Structured projects</p></div>
+    </div>
+    <div class="hero-card floating delay-1">
+      <div class="hc-icon purple"><i class="fas fa-robot"></i></div>
+      <div class="hc-text"><p class="hc-title">Generative AI</p><p class="hc-sub">LLMs &amp; Agents</p></div>
+    </div>
+    <div class="hero-card floating delay-2">
+      <div class="hc-icon green"><i class="fas fa-trophy"></i></div>
+      <div class="hc-text"><p class="hc-title">Recognition</p><p class="hc-sub">XP &amp; achievements</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="domain-strip">
+  <div class="strip-container">
+    <div class="strip-item"><i class="fas fa-brain"></i> Machine Learning</div>
+    <div class="strip-item"><i class="fas fa-eye"></i> Computer Vision</div>
+    <div class="strip-item"><i class="fas fa-language"></i> NLP</div>
+    <div class="strip-item"><i class="fas fa-robot"></i> Generative AI</div>
+    <div class="strip-item"><i class="fas fa-bolt"></i> AI Agents</div>
+    <div class="strip-item"><i class="fas fa-chart-network"></i> Deep Learning</div>
+    <div class="strip-item"><i class="fas fa-microchip"></i> Prompt Engineering</div>
+    <div class="strip-item"><i class="fas fa-shield-alt"></i> AI Ethics</div>
+  </div>
+</section>
+
+<section class="features-section">
+  <div class="section-container">
+    <div class="section-header centered">
+      <div class="section-tag">What We Offer</div>
+      <h2 class="section-title">A Complete AI Ecosystem for Students</h2>
+      <p class="section-subtitle">From hands-on research to competitions, PRISM AI gives you the tools, mentorship and community to grow as an AI practitioner at RNSIT.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-project-diagram"></i></div>
+        <h3>Real AI Projects</h3>
+        <p>Work on structured AI research projects with guidance from experienced leads.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon purple"><i class="fas fa-user-graduate"></i></div>
+        <h3>Member Portal</h3>
+        <p>Every member gets a personalized workspace — projects, tasks, reports and achievements.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon green"><i class="fas fa-flask"></i></div>
+        <h3>Research Hub</h3>
+        <p>Organize literature reviews, upload papers and share resources with your team.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon orange"><i class="fas fa-calendar-alt"></i></div>
+        <h3>Events &amp; Workshops</h3>
+        <p>Hackathons, workshops, seminars, competitions and guest lectures.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-users"></i></div>
+        <h3>Collaboration</h3>
+        <p>Teams, meetings, weekly reports and structured feedback cycles.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon pink"><i class="fas fa-trophy"></i></div>
+        <h3>Contribution XP</h3>
+        <p>Earn points for every contribution — projects, research, events, tutorials.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if announcements %}
+<section class="announcements-strip">
+  <div class="section-container">
+    <div class="section-header">
+      <div class="section-tag">Latest</div>
+      <h2 class="section-title">Announcements</h2>
+    </div>
+    <div class="announcements-grid">
+      {% for ann in announcements %}
+      <div class="ann-card">
+        <div class="ann-meta">
+          <span class="ann-category">{{ ann.category }}</span>
+          <span class="ann-date">{{ ann.created_at.strftime('%b %d, %Y') }}</span>
+        </div>
+        <h3>{{ ann.title }}</h3>
+        <p>{{ ann.content[:130] }}{% if ann.content|length > 130 %}...{% endif %}</p>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('announcements.view_announcement', ann_id=ann.id) }}" class="ann-link">Read more &rarr;</a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="cta-section">
+  <div class="section-container">
+    <div class="cta-container">
+      <div class="cta-content">
+        <div class="section-tag">Join Us</div>
+        <h2>Ready to Explore AI with PRISM?</h2>
+        <p>Apply to become a member and get access to your personalized workspace, research tools, and a community of AI enthusiasts at RNSIT.</p>
+        <a href="{{ url_for('main.contact') }}" class="btn-primary-lg">
+          <i class="fas fa-paper-plane"></i> Get in Touch
+        </a>
+      </div>
+      <div class="cta-visual">
+        <div class="cta-card"><i class="fas fa-brain"></i> AI Research</div>
+        <div class="cta-card"><i class="fas fa-code-branch"></i> Real Projects</div>
+        <div class="cta-card"><i class="fas fa-users"></i> Great Community</div>
+        <div class="cta-card"><i class="fas fa-trophy"></i> Recognition</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var intro = document.getElementById('prisma-intro');
+  if (!intro) return;
+  var entered = false;
+  document.body.classList.add('intro-on');
+
+  function enter() {
+    if (entered) return;
+    entered = true;
+    intro.classList.add('fade-out');
+    setTimeout(function () {
+      intro.style.display = 'none';
+      document.body.classList.remove('intro-on');
+    }, 850);
+  }
+
+  intro.addEventListener('click', enter);
+  intro.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') enter();
+  });
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    intro.style.display = 'none';
+    document.body.classList.remove('intro-on');
+  }
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Sign Up — PRISM AI{% endblock %}
+{% block content %}
+<div class="auth-page centered" style="background:var(--bg)">
+  <div class="auth-card standalone" style="max-width:480px">
+
+    <div class="auth-card-header" style="text-align:center">
+      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="PRISM AI" class="choice-logo">
+      <h2>Join PRISM AI</h2>
+      <p>Paste the invitation link or code sent to you by the PRISM AI administrator.</p>
+    </div>
+
+    <!-- Progress steps -->
+    <div class="signup-flow-steps" style="margin:1.5rem 0">
+      <div class="sfs-step active"><span class="sfs-num">1</span><span>Enter code</span></div>
+      <div class="sfs-divider"></div>
+      <div class="sfs-step"><span class="sfs-num">2</span><span>Your details</span></div>
+      <div class="sfs-divider"></div>
+      <div class="sfs-step"><span class="sfs-num">3</span><span>Admin approval</span></div>
+      <div class="sfs-divider"></div>
+      <div class="sfs-step"><span class="sfs-num">4</span><span>Sign in</span></div>
+    </div>
+
+    <form class="auth-form" method="POST" action="{{ url_for('auth.signup') }}">
+      <div class="form-group">
+        <label><i class="fas fa-ticket-alt"></i> Invitation Code or Link</label>
+        <input type="text" name="token"
+               placeholder="Paste your invitation link or code here"
+               required autocomplete="off" style="font-family:monospace;font-size:0.85rem">
+        <small>You can paste the full link (e.g. http://127.0.0.1:5000/auth/register/abc123…) or just the code at the end.</small>
+      </div>
+
+      <button type="submit" class="btn-auth" style="margin-top:0.5rem">
+        <i class="fas fa-arrow-right"></i> Verify & Continue
+      </button>
+    </form>
+
+    <div class="auth-note" style="margin-top:1.25rem">
+      <i class="fas fa-info-circle"></i>
+      Don't have an invitation code? Contact the PRISM AI administrator to request access.
+    </div>
+
+    <div style="text-align:center;margin-top:1.25rem;padding-top:1.25rem;border-top:1.5px solid var(--border)">
+      <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.5rem">Already have an account?</p>
+      <a href="{{ url_for('auth.signin') }}" class="btn-sm-outline" style="margin:0 auto">
+        <i class="fas fa-sign-in-alt"></i> Sign In Instead
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

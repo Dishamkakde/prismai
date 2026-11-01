@@ -1,0 +1,66 @@
+{% extends 'portal_base.html' %}
+{% block title %}Upload Document — PRISM AI{% endblock %}
+{% block breadcrumb %}Resources / Upload{% endblock %}
+{% block content %}
+<div class="form-page">
+    <div class="form-page-header"><h1><i class="fas fa-upload"></i> Upload Document</h1></div>
+    <form method="POST" enctype="multipart/form-data" class="portal-form">
+        <div class="form-group">
+            <label>Document Title *</label>
+            <input type="text" name="title" placeholder="Descriptive title" required>
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" rows="2" placeholder="What is this document about?"></textarea>
+        </div>
+        <div class="form-row-2">
+            <div class="form-group">
+                <label>Category</label>
+                <select name="category">
+                    {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Access Level</label>
+                <select name="access_level">
+                    <option value="project">Project Members Only</option>
+                    <option value="public">All Portal Members</option>
+                    <option value="admin">Admin Only</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Link to Project (optional)</label>
+            <select name="project_id">
+                <option value="">None</option>
+                {% for p in projects %}
+                <option value="{{ p.id }}">{{ p.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>File *</label>
+            <div class="file-upload-zone" onclick="document.getElementById('docFile').click()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Click to select file</p>
+                <small>PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, ZIP, TXT, CSV, images (max 16MB)</small>
+                <input type="file" id="docFile" name="document_file" style="display:none" onchange="updateFileName(this)" required>
+            </div>
+            <p id="selectedFile" style="margin-top:8px;color:var(--text-muted);font-size:0.875rem;"></p>
+        </div>
+        <div class="form-actions">
+            <a href="{{ url_for('documents.library') }}" class="btn-cancel">Cancel</a>
+            <button type="submit" class="btn-primary-sm"><i class="fas fa-upload"></i> Upload</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function updateFileName(input) {
+    document.getElementById('selectedFile').textContent = input.files[0] ? 'Selected: ' + input.files[0].name : '';
+}
+</script>
+{% endblock %}

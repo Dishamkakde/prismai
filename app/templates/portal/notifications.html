@@ -1,0 +1,27 @@
+{% extends 'portal_base.html' %}
+{% block title %}Notifications — PRISM AI{% endblock %}
+{% block breadcrumb %}Notifications{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-bell"></i> Notifications</h1>
+</div>
+{% if notifications %}
+<div class="notifications-list">
+    {% for notif in notifications %}
+    <div class="notif-full-item {{ '' if notif.is_read else 'unread' }}">
+        <div class="nfi-dot type-{{ notif.notif_type or 'general' }}"></div>
+        <div class="nfi-body">
+            <p class="nfi-title">{{ notif.title }}</p>
+            {% if notif.message %}<p class="nfi-msg">{{ notif.message }}</p>{% endif %}
+            <p class="nfi-time"><i class="fas fa-clock"></i> {{ notif.created_at.strftime('%B %d, %Y at %H:%M') }}</p>
+        </div>
+        {% if notif.link %}
+        <a href="{{ notif.link }}" class="nfi-action"><i class="fas fa-arrow-right"></i></a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state large"><i class="fas fa-bell-slash"></i><h3>No notifications yet</h3></div>
+{% endif %}
+{% endblock %}

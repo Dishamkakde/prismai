@@ -1,0 +1,45 @@
+{% extends 'portal_base.html' %}
+{% block title %}Research Hub — PRISM AI{% endblock %}
+{% block breadcrumb %}Research Hub{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-flask"></i> Research Hub</h1>
+    <a href="{{ url_for('research.add_paper') }}" class="btn-primary-sm"><i class="fas fa-plus"></i> Add Paper</a>
+</div>
+{% if topics %}
+<div class="topic-filters">
+    <a href="{{ url_for('research.hub') }}" class="topic-chip {{ 'active' if not request.args.get('topic') }}">All</a>
+    {% for topic in topics %}
+    <a href="{{ url_for('research.hub') }}?topic={{ topic }}" class="topic-chip {{ 'active' if request.args.get('topic') == topic }}">{{ topic }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+{% if papers %}
+<div class="research-grid">
+    {% for paper in papers %}
+    <a href="{{ url_for('research.paper_detail', paper_id=paper.id) }}" class="research-card">
+        <div class="rc-header">
+            <span class="rc-topic">{{ paper.research_topic or 'General' }}</span>
+            <span class="rc-date">{{ paper.created_at.strftime('%b %Y') }}</span>
+        </div>
+        <h3>{{ paper.title }}</h3>
+        {% if paper.authors %}<p class="rc-authors"><i class="fas fa-users"></i> {{ paper.authors }}</p>{% endif %}
+        {% if paper.source %}<p class="rc-source"><i class="fas fa-book"></i> {{ paper.source }}</p>{% endif %}
+        {% if paper.key_findings %}<p class="rc-excerpt">{{ paper.key_findings[:100] }}{% if paper.key_findings|length > 100 %}...{% endif %}</p>{% endif %}
+        <div class="rc-footer">
+            {% if paper.publication_link %}<span><i class="fas fa-external-link-alt"></i> External Link</span>{% endif %}
+            {% if paper.file_path %}<span><i class="fas fa-file-pdf"></i> File Attached</span>{% endif %}
+            <span class="rc-uploader">by {{ paper.uploader.profile.full_name if paper.uploader.profile else '—' }}</span>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state large">
+    <i class="fas fa-flask"></i>
+    <h3>No research papers yet</h3>
+    <p>Start building your research library by adding the first paper.</p>
+    <a href="{{ url_for('research.add_paper') }}" class="btn-primary-sm">Add Paper</a>
+</div>
+{% endif %}
+{% endblock %}

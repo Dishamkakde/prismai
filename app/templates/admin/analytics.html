@@ -1,0 +1,78 @@
+{% extends 'portal_base.html' %}
+{% block title %}Analytics — Admin{% endblock %}
+{% block breadcrumb %}Admin / Analytics{% endblock %}
+{% block content %}
+<div class="page-title-row"><h1><i class="fas fa-chart-pie"></i> Analytics</h1></div>
+
+<div class="analytics-grid">
+    <div class="analytics-card">
+        <h3>Members by Department</h3>
+        <div class="bar-chart">
+            {% for dept, count in dept_data %}
+            <div class="bc-row">
+                <span class="bc-label">{{ dept or 'Unassigned' }}</span>
+                <div class="bc-bar-wrap">
+                    <div class="bc-bar" style="width:{{ [count * 20, 100]|min }}%">{{ count }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="analytics-card">
+        <h3>Tasks by Status</h3>
+        <div class="bar-chart">
+            {% for status, count in task_data %}
+            <div class="bc-row">
+                <span class="bc-label">{{ status }}</span>
+                <div class="bc-bar-wrap">
+                    <div class="bc-bar status-bar-{{ status.lower().replace(' ','-') }}" style="width:{{ [count * 10, 100]|min }}%">{{ count }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="analytics-card">
+        <h3>Projects by Status</h3>
+        <div class="bar-chart">
+            {% for status, count in proj_data %}
+            <div class="bc-row">
+                <span class="bc-label">{{ status }}</span>
+                <div class="bc-bar-wrap">
+                    <div class="bc-bar" style="width:{{ [count * 20, 100]|min }}%">{{ count }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="analytics-card">
+        <h3>Weekly Report Submissions (Last 4 Weeks)</h3>
+        <div class="bar-chart">
+            {% for w in weekly_data %}
+            <div class="bc-row">
+                <span class="bc-label">{{ w.week }}</span>
+                <div class="bc-bar-wrap">
+                    <div class="bc-bar" style="width:{{ [w.count * 15, 100]|min }}%">{{ w.count }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="analytics-card wide">
+        <h3><i class="fas fa-star"></i> Top Contributors</h3>
+        <div class="leaderboard-wrap compact">
+            {% for profile in top_contributors %}
+            <div class="leaderboard-row">
+                <div class="lb-rank">{{ loop.index }}</div>
+                <div class="lb-info">
+                    <p class="lb-name">{{ profile.full_name }}</p>
+                    <p class="lb-dept">{{ profile.department or '—' }}</p>
+                </div>
+                <div class="lb-points"><span>{{ profile.contribution_points }}</span><small>pts</small></div>
+            </div>
+            {% else %}
+            <p class="text-muted">No contributions recorded yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

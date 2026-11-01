@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Team — PRISM AI{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="page-hero-content">
+    <div class="section-tag">Our People</div>
+    <h1>Meet the Team</h1>
+    <p>The PRISM AI members building, researching and innovating at RNSIT.</p>
+  </div>
+</section>
+
+<section class="team-section">
+  <div class="section-container">
+    {% if profiles %}
+    <div class="team-grid">
+      {% for profile in profiles %}
+      <div class="team-card">
+        <div class="team-avatar-wrap">
+          {% if profile.profile_picture and profile.profile_picture != 'default_avatar.png' %}
+            <img src="{{ url_for('static', filename='uploads/' + profile.profile_picture) }}"
+                 alt="{{ profile.full_name }}" class="team-avatar">
+          {% else %}
+            <div class="team-avatar-placeholder">{{ profile.full_name[0].upper() }}</div>
+          {% endif %}
+        </div>
+        <div class="team-info">
+          <h3>{{ profile.full_name }}</h3>
+          {% if profile.designation %}
+          <p class="team-designation">{{ profile.designation }}</p>
+          {% endif %}
+          {% if profile.department %}
+          <p class="team-dept">{{ profile.department }}</p>
+          {% endif %}
+          {% if profile.technical_skills %}
+          <div class="team-skills">
+            {% for skill in profile.technical_skills.split(',')[:3] %}
+              {% if skill.strip() %}
+              <span class="skill-tag">{{ skill.strip() }}</span>
+              {% endif %}
+            {% endfor %}
+          </div>
+          {% endif %}
+          <div class="team-links">
+            {% if profile.github_url %}
+            <a href="{{ profile.github_url }}" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
+            {% endif %}
+            {% if profile.linkedin_url %}
+            <a href="{{ profile.linkedin_url }}" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+            {% endif %}
+            {% if profile.portfolio_url %}
+            <a href="{{ profile.portfolio_url }}" target="_blank" title="Portfolio"><i class="fas fa-globe"></i></a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state large">
+      <i class="fas fa-users"></i>
+      <h3>Team profiles coming soon</h3>
+      <p>Member profiles will appear here once members set up their accounts and fill in their details.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

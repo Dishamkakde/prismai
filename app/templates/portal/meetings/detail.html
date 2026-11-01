@@ -1,0 +1,81 @@
+{% extends 'portal_base.html' %}
+{% block title %}{{ meeting.title }} — PRISM AI{% endblock %}
+{% block breadcrumb %}Meetings / {{ meeting.title }}{% endblock %}
+{% block content %}
+<div class="meeting-detail-page">
+    <div class="meeting-detail-header">
+        <div>
+            <span class="mc-type-badge">{{ meeting.meeting_type.title() }}</span>
+            <h1>{{ meeting.title }}</h1>
+            <div class="mdh-meta">
+                <span><i class="fas fa-calendar"></i> {{ meeting.meeting_date.strftime('%A, %B %d, %Y') }}</span>
+                <span><i class="fas fa-clock"></i> {{ meeting.meeting_date.strftime('%H:%M') }} ({{ meeting.duration_minutes }} min)</span>
+                {% if meeting.venue %}<span><i class="fas fa-map-marker-alt"></i> {{ meeting.venue }}</span>{% endif %}
+                {% if meeting.meeting_link %}<span><a href="{{ meeting.meeting_link }}" target="_blank"><i class="fas fa-video"></i> Join Online</a></span>{% endif %}
+            </div>
+        </div>
+        {% if is_organizer %}
+        <div class="mdh-actions">
+            <button onclick="document.getElementById('minutesForm').style.display='block'" class="btn-sm-primary">
+                <i class="fas fa-edit"></i> Update Notes
+            </button>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="meeting-detail-grid">
+        <div class="meeting-main">
+            {% if meeting.description %}
+            <div class="meeting-section"><h4>About</h4><p>{{ meeting.description }}</p></div>
+            {% endif %}
+            {% if meeting.agenda %}
+            <div class="meeting-section"><h4><i class="fas fa-list"></i> Agenda</h4><p>{{ meeting.agenda }}</p></div>
+            {% endif %}
+            {% if meeting.minutes %}
+            <div class="meeting-section"><h4><i class="fas fa-file-alt"></i> Meeting Minutes</h4><p>{{ meeting.minutes }}</p></div>
+            {% endif %}
+            {% if meeting.decisions %}
+            <div class="meeting-section"><h4><i class="fas fa-gavel"></i> Decisions Made</h4><p>{{ meeting.decisions }}</p></div>
+            {% endif %}
+            {% if meeting.follow_up_tasks %}
+            <div class="meeting-section"><h4><i class="fas fa-tasks"></i> Follow-up Tasks</h4><p>{{ meeting.follow_up_tasks }}</p></div>
+            {% endif %}
+
+            {% if is_organizer %}
+            <div id="minutesForm" style="display:none;" class="meeting-section">
+                <h4>Update Meeting Notes</h4>
+                <form method="POST" action="{{ url_for('meetings.update_meeting', meeting_id=meeting.id) }}" class="portal-form">
+                    <div class="form-group"><label>Minutes</label><textarea name="minutes" rows="4">{{ meeting.minutes or '' }}</textarea></div>
+                    <div class="form-group"><label>Decisions</label><textarea name="decisions" rows="3">{{ meeting.decisions or '' }}</textarea></div>
+                    <div class="form-group"><label>Follow-up Tasks</label><textarea name="follow_up_tasks" rows="3">{{ meeting.follow_up_tasks or '' }}</textarea></div>
+                    <button type="submit" class="btn-primary-sm">Save Notes</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="meeting-sidebar">
+            <div class="meeting-info-card">
+                <h4>Participants ({{ meeting.participants|length }})</h4>
+                <div class="participants-list">
+                    {% for p in meeting.participants %}
+                    <div class="participant-item">
+                        <div class="p-avatar">{{ p.profile.full_name[0].upper() if p.profile else 'M' }}</div>
+                        <div>
+                            <p>{{ p.profile.full_name if p.profile else p.email }}</p>
+                            <small>{% if p.id == meeting.organized_by %}Organizer{% else %}{{ p.role.replace('_',' ').title() }}{% endif %}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="meeting-info-card">
+                <h4>Details</h4>
+                <div class="info-row"><span>Organized by</span><strong>{{ meeting.organizer.profile.full_name if meeting.organizer.profile else '—' }}</strong></div>
+                {% if meeting.project %}<div class="info-row"><span>Project</span><strong>{{ meeting.project.title }}</strong></div>{% endif %}
+                <div class="info-row"><span>Type</span><strong>{{ meeting.meeting_type.title() }}</strong></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

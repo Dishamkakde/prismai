@@ -1,0 +1,55 @@
+{% extends 'portal_base.html' %}
+{% block title %}My Achievements — PRISM AI{% endblock %}
+{% block breadcrumb %}Achievements{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-trophy"></i> Achievements</h1>
+    <div class="title-row-actions">
+        <a href="{{ url_for('achievements.leaderboard') }}" class="btn-sm-outline"><i class="fas fa-chart-bar"></i> Leaderboard</a>
+        <a href="{{ url_for('achievements.submit_achievement') }}" class="btn-primary-sm"><i class="fas fa-plus"></i> Submit Achievement</a>
+    </div>
+</div>
+<div class="points-banner">
+    <div class="pb-icon"><i class="fas fa-star"></i></div>
+    <div class="pb-info">
+        <h2>{{ profile.contribution_points or 0 }}</h2>
+        <p>Total Contribution Points</p>
+    </div>
+    <div class="pb-count">
+        <h3>{{ achievements|length }}</h3>
+        <p>Verified Achievements</p>
+    </div>
+</div>
+{% if achievements %}
+<div class="achievements-grid">
+    {% for a in achievements %}
+    <div class="achievement-card">
+        <div class="ach-icon cat-{{ a.category.lower().replace(' ', '-')[:10] }}">
+            <i class="fas fa-{% if 'Project' in a.category %}project-diagram{% elif 'Research' in a.category %}flask{% elif 'Publication' in a.category %}book{% elif 'Hackathon' in a.category %}code{% elif 'Competition' in a.category %}trophy{% elif 'Workshop' in a.category %}chalkboard-teacher{% elif 'Open' in a.category %}code-branch{% else %}medal{% endif %}"></i>
+        </div>
+        <div class="ach-info">
+            <h4>{{ a.title }}</h4>
+            <span class="ach-category">{{ a.category }}</span>
+            {% if a.description %}<p>{{ a.description[:80] }}{% if a.description|length > 80 %}...{% endif %}</p>{% endif %}
+            <div class="ach-footer">
+                <span class="ach-points">+{{ a.points }} pts</span>
+                <span class="ach-date">{{ a.awarded_at.strftime('%b %Y') }}</span>
+            </div>
+        </div>
+        {% if a.certificate_path %}
+        <a href="{{ url_for('static', filename='uploads/' + a.certificate_path) }}" target="_blank" class="ach-cert-btn" title="View Certificate">
+            <i class="fas fa-certificate"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state large">
+    <i class="fas fa-trophy"></i>
+    <h3>No achievements yet</h3>
+    <p>Submit your contributions and achievements for verification.</p>
+    <a href="{{ url_for('achievements.submit_achievement') }}" class="btn-primary-sm">Submit First Achievement</a>
+</div>
+{% endif %}
+{% endblock %}

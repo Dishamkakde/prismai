@@ -1,0 +1,64 @@
+{% extends 'portal_base.html' %}
+{% block title %}Submit Weekly Report — PRISM AI{% endblock %}
+{% block breadcrumb %}Reports / Submit{% endblock %}
+{% block content %}
+<div class="form-page">
+    <div class="form-page-header">
+        <h1><i class="fas fa-file-alt"></i> Weekly Progress Report</h1>
+        <p>Week of {{ week_start.strftime('%B %d') }} – {{ week_end.strftime('%B %d, %Y') }}</p>
+    </div>
+    <form method="POST" class="portal-form">
+        <div class="form-group">
+            <label>Project *</label>
+            <select name="project_id" required>
+                <option value="">Select project</option>
+                {% for p in projects %}
+                <option value="{{ p.id }}">{{ p.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-section">
+            <h3>This Week</h3>
+            <div class="form-group">
+                <label>Work Completed</label>
+                <textarea name="work_completed" rows="4" placeholder="What did you accomplish this week?"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Tasks Completed</label>
+                <textarea name="tasks_completed" rows="3" placeholder="List the tasks you finished..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Current Work in Progress</label>
+                <textarea name="current_work" rows="3" placeholder="What are you currently working on?"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Research Progress</label>
+                <textarea name="research_progress" rows="3" placeholder="Research updates, papers reviewed, findings..."></textarea>
+            </div>
+        </div>
+        <div class="form-section">
+            <h3>Challenges & Next Steps</h3>
+            <div class="form-group">
+                <label>Challenges Faced</label>
+                <textarea name="challenges" rows="3" placeholder="Any blockers or difficulties?"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Goals for Next Week</label>
+                <textarea name="next_week_goals" rows="3" placeholder="What do you plan to achieve next week?"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Assistance Required</label>
+                <textarea name="assistance_required" rows="2" placeholder="Do you need help with anything?"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Supporting Links / Attachments</label>
+                <textarea name="supporting_links" rows="2" placeholder="GitHub PRs, Google Drive links, etc."></textarea>
+            </div>
+        </div>
+        <div class="form-actions">
+            <a href="{{ url_for('reports.my_reports') }}" class="btn-cancel">Cancel</a>
+            <button type="submit" class="btn-primary-sm"><i class="fas fa-paper-plane"></i> Submit Report</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

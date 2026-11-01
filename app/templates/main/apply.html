@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}Apply to Join — PRISM AI{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="page-hero-content">
+    <div class="section-tag">Join the Club</div>
+    <h1>Apply to Join PRISM AI</h1>
+    <p>Submit your application — the admin will review and get back to you within a few days.</p>
+  </div>
+</section>
+
+<section style="padding:64px 0;background:var(--bg)">
+  <div class="section-container" style="max-width:780px">
+
+    <div style="background:var(--blue-50);border:1px solid var(--blue-100);border-radius:var(--radius);padding:1.1rem 1.25rem;margin-bottom:2rem;display:flex;gap:10px;align-items:flex-start">
+      <i class="fas fa-info-circle" style="color:var(--blue-500);margin-top:2px;flex-shrink:0"></i>
+      <p style="font-size:0.875rem;color:var(--text-secondary)">
+        Fill in your details below. Once the admin reviews and approves your application,
+        you'll receive an activation link to set your password and access your member portal.
+        <strong style="color:var(--text)">No account is created until the admin approves.</strong>
+      </p>
+    </div>
+
+    <div style="background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:2rem;box-shadow:var(--shadow-sm)">
+      <form method="POST" action="{{ url_for('main.apply') }}" class="portal-form" id="applyForm">
+
+        <div class="reg-section">
+          <div class="reg-section-title"><i class="fas fa-user"></i> Personal Details</div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Full Name <span class="req">*</span></label>
+              <input type="text" name="full_name" placeholder="As per college records" required>
+            </div>
+            <div class="form-group">
+              <label>College Email <span class="req">*</span></label>
+              <input type="email" name="email" placeholder="yourname@rnsit.ac.in" required>
+            </div>
+          </div>
+          <div class="form-row-2" style="margin-top:0.75rem">
+            <div class="form-group">
+              <label>USN / Roll No. <span class="req">*</span></label>
+              <input type="text" name="usn" placeholder="1RN22AI015" required>
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" name="phone" placeholder="10-digit mobile number">
+            </div>
+          </div>
+        </div>
+
+        <div class="reg-section">
+          <div class="reg-section-title"><i class="fas fa-graduation-cap"></i> Academic Details</div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Branch <span class="req">*</span></label>
+              <select name="branch" required>
+                <option value="">Select branch</option>
+                <option>Computer Science &amp; Engineering</option>
+                <option>Information Science &amp; Engineering</option>
+                <option>Electronics &amp; Communication</option>
+                <option>Electrical &amp; Electronics</option>
+                <option>Artificial Intelligence &amp; ML</option>
+                <option>Data Science</option>
+                <option>Mechanical Engineering</option>
+                <option>Civil Engineering</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Academic Year <span class="req">*</span></label>
+              <select name="academic_year" required>
+                <option value="">Select year</option>
+                <option>1st Year</option>
+                <option>2nd Year</option>
+                <option>3rd Year</option>
+                <option>4th Year</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="reg-section">
+          <div class="reg-section-title"><i class="fas fa-building"></i> Club Preference</div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Preferred Department <span class="req">*</span></label>
+              <select name="department" required>
+                <option value="">Select department</option>
+                <option value="Research &amp; Projects">Research &amp; Projects (RESEARCH)</option>
+                <option value="Technical Team">Technical Team (TECH)</option>
+                <option value="Webmaster">Webmaster (WEB)</option>
+                <option value="Social Media">Social Media (SM)</option>
+                <option value="Public Relations">Public Relations (PR)</option>
+                <option value="Event Management">Event Management (EVENTS)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Designation</label>
+              <input type="text" name="designation" value="Member" placeholder="e.g. Member, Core Member">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:0.75rem">
+            <label>Reason for Requesting Membership &amp; Relevant Experience <span class="req">*</span></label>
+            <textarea name="reason" rows="5"
+              placeholder="Tell us about your interests in AI, past projects, hackathons attended, or why you want to contribute to PRISM AI..."
+              required></textarea>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-reg-submit">
+          <i class="fas fa-paper-plane"></i> Submit Application for Admin Review
+        </button>
+
+        <p style="text-align:center;font-size:0.85rem;color:var(--text-secondary);margin-top:1rem">
+          Already an approved member?
+          <a href="{{ url_for('auth.signin') }}" style="color:var(--blue-500);font-weight:600">Sign in to your account →</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

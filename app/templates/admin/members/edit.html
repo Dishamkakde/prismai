@@ -1,0 +1,87 @@
+{% extends 'portal_base.html' %}
+{% block title %}Edit Member — Admin{% endblock %}
+{% block breadcrumb %}Admin / Members / Edit{% endblock %}
+{% block content %}
+<div class="form-page">
+    <div class="form-page-header">
+        <h1><i class="fas fa-user-edit"></i> Edit Member</h1>
+        <p>{{ profile.full_name if profile else user.email }}</p>
+    </div>
+    <form method="POST" class="portal-form">
+        <div class="form-section">
+            <h3>Account Settings</h3>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>Role</label>
+                    <select name="role">
+                        {% for r in roles %}
+                        <option value="{{ r }}" {{ 'selected' if user.role == r }}>{{ r.replace('_',' ').title() }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Account Status</label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="is_active" {{ 'checked' if user.is_active }}> Active
+                    </label>
+                </div>
+            </div>
+        </div>
+        {% if profile %}
+        <div class="form-section">
+            <h3>Profile Information</h3>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="full_name" value="{{ profile.full_name }}">
+                </div>
+                <div class="form-group">
+                    <label>USN</label>
+                    <input type="text" name="usn" value="{{ profile.usn or '' }}">
+                </div>
+            </div>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>Branch</label>
+                    <input type="text" name="branch" value="{{ profile.branch or '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Academic Year</label>
+                    <select name="academic_year">
+                        {% for yr in ['1st Year','2nd Year','3rd Year','4th Year'] %}
+                        <option {{ 'selected' if profile.academic_year == yr }}>{{ yr }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>Department</label>
+                    <select name="department">
+                        {% for d in departments %}
+                        <option value="{{ d }}" {{ 'selected' if profile.department == d }}>{{ d }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Designation</label>
+                    <input type="text" name="designation" value="{{ profile.designation or '' }}" placeholder="e.g. Core Member, Team Lead">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Membership Status</label>
+                <select name="membership_status">
+                    <option {{ 'selected' if profile.membership_status == 'Active' }}>Active</option>
+                    <option {{ 'selected' if profile.membership_status == 'Inactive' }}>Inactive</option>
+                    <option {{ 'selected' if profile.membership_status == 'Alumni' }}>Alumni</option>
+                </select>
+            </div>
+        </div>
+        {% endif %}
+        <div class="form-actions">
+            <a href="{{ url_for('admin.member_detail', user_id=user.id) }}" class="btn-cancel">Cancel</a>
+            <button type="submit" class="btn-primary-sm"><i class="fas fa-save"></i> Save Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'portal_base.html' %}
+{% block title %}Edit Project — PRISM AI{% endblock %}
+{% block breadcrumb %}Projects / Edit{% endblock %}
+{% block content %}
+<div class="form-page">
+    <div class="form-page-header"><h1><i class="fas fa-edit"></i> Edit Project</h1><p>{{ project.title }}</p></div>
+    <form method="POST" class="portal-form">
+        <div class="form-section">
+            <h3>Basic Information</h3>
+            <div class="form-group">
+                <label>Project Title *</label>
+                <input type="text" name="title" value="{{ project.title }}" required>
+            </div>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" name="category" value="{{ project.category or '' }}" placeholder="e.g. Machine Learning">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status">
+                        {% for s in ['Planning','Research','Development','Testing','Under Review','Completed','On Hold'] %}
+                        <option value="{{ s }}" {{ 'selected' if project.status == s }}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="3">{{ project.description or '' }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Problem Statement</label>
+                <textarea name="problem_statement" rows="3">{{ project.problem_statement or '' }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Proposed Solution</label>
+                <textarea name="proposed_solution" rows="3">{{ project.proposed_solution or '' }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Objectives</label>
+                <textarea name="objectives" rows="3">{{ project.objectives or '' }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Technologies Used</label>
+                <input type="text" name="technologies" value="{{ project.technologies or '' }}">
+            </div>
+        </div>
+        <div class="form-section">
+            <h3>Progress & Timeline</h3>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" name="start_date" value="{{ project.start_date.strftime('%Y-%m-%d') if project.start_date else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Expected End Date</label>
+                    <input type="date" name="expected_end_date" value="{{ project.expected_end_date.strftime('%Y-%m-%d') if project.expected_end_date else '' }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Progress ({{ project.progress_percent }}%)</label>
+                <input type="range" name="progress_percent" min="0" max="100" value="{{ project.progress_percent }}" oninput="document.getElementById('progVal').textContent=this.value+'%'">
+                <span id="progVal">{{ project.progress_percent }}%</span>
+            </div>
+        </div>
+        <div class="form-section">
+            <h3>Links</h3>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>GitHub URL</label>
+                    <input type="url" name="github_url" value="{{ project.github_url or '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Demo URL</label>
+                    <input type="url" name="demo_url" value="{{ project.demo_url or '' }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Visibility</label>
+                <select name="visibility">
+                    <option value="private" {{ 'selected' if project.visibility == 'private' }}>Private</option>
+                    <option value="public" {{ 'selected' if project.visibility == 'public' }}>Public</option>
+                </select>
+            </div>
+        </div>
+        {% if current_user.is_admin() %}
+        <div class="form-section">
+            <h3>Team</h3>
+            <div class="form-group">
+                <label>Project Lead</label>
+                <select name="lead_id">
+                    <option value="">None</option>
+                    {% for m in members %}
+                    <option value="{{ m.id }}" {{ 'selected' if project.lead_id == m.id }}>{{ m.profile.full_name if m.profile else m.email }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Team Members</label>
+                <div class="multi-select-list">
+                    {% for m in members %}
+                    <label class="check-item">
+                        <input type="checkbox" name="member_ids" value="{{ m.id }}" {{ 'checked' if m in project.members }}>
+                        <span>{{ m.profile.full_name if m.profile else m.email }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="form-actions">
+            <a href="{{ url_for('projects.project_detail', project_id=project.id) }}" class="btn-cancel">Cancel</a>
+            <button type="submit" class="btn-primary-sm"><i class="fas fa-save"></i> Save Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

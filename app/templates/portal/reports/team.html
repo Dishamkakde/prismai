@@ -1,0 +1,36 @@
+{% extends 'portal_base.html' %}
+{% block title %}Team Reports — PRISM AI{% endblock %}
+{% block breadcrumb %}Reports / Team{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-clipboard-list"></i> Team Reports</h1>
+</div>
+{% if reports %}
+<div class="reports-table-wrap">
+    <table class="portal-table">
+        <thead>
+            <tr><th>Member</th><th>Project</th><th>Week</th><th>Status</th><th>Submitted</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for r in reports %}
+            <tr>
+                <td><strong>{{ r.author.profile.full_name if r.author.profile else r.author.email }}</strong></td>
+                <td>{{ r.project.title }}</td>
+                <td>{{ r.week_start.strftime('%b %d') }}</td>
+                <td><span class="badge {{ 'badge-green' if r.status == 'Reviewed' else 'badge-blue' }}">{{ r.status }}</span></td>
+                <td>{{ r.submitted_at.strftime('%b %d') }}</td>
+                <td>
+                    <a href="{{ url_for('reports.view_report', report_id=r.id) }}" class="table-link">View</a>
+                    {% if r.status != 'Reviewed' %}
+                    <a href="{{ url_for('reports.review_report', report_id=r.id) }}" class="table-link accent">Review</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state large"><i class="fas fa-clipboard"></i><h3>No reports yet</h3></div>
+{% endif %}
+{% endblock %}

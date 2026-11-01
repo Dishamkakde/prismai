@@ -1,0 +1,55 @@
+{% extends 'portal_base.html' %}
+{% block title %}Change Requests — Admin{% endblock %}
+{% block breadcrumb %}Admin / Change Requests{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-exchange-alt"></i> Change Requests</h1>
+</div>
+
+{% if pending %}
+<h3 class="sub-section-title">Pending Review ({{ pending|length }})</h3>
+<div class="table-wrap" style="margin-bottom:2rem">
+    <table class="portal-table">
+        <thead>
+            <tr><th>Member</th><th>Type</th><th>Action</th><th>Description</th><th>Submitted</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for cr in pending %}
+            <tr>
+                <td><strong>{{ cr.requester.profile.full_name if cr.requester.profile else cr.requester.email }}</strong></td>
+                <td><span class="badge badge-blue">{{ cr.target_type.title() }}</span></td>
+                <td>{{ cr.action.title() }}</td>
+                <td>{{ cr.description[:60] if cr.description else '—' }}{% if cr.description and cr.description|length > 60 %}...{% endif %}</td>
+                <td>{{ cr.created_at.strftime('%b %d, %H:%M') }}</td>
+                <td><a href="{{ url_for('admin.review_change_request', cr_id=cr.id) }}" class="btn-sm-primary">Review</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state sm"><i class="fas fa-check-circle"></i><p>No pending change requests.</p></div>
+{% endif %}
+
+{% if reviewed %}
+<h3 class="sub-section-title" style="margin-top:2rem">Recently Reviewed</h3>
+<div class="table-wrap">
+    <table class="portal-table">
+        <thead>
+            <tr><th>Member</th><th>Type</th><th>Status</th><th>Reviewed By</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+            {% for cr in reviewed %}
+            <tr>
+                <td>{{ cr.requester.profile.full_name if cr.requester.profile else cr.requester.email }}</td>
+                <td>{{ cr.target_type.title() }}</td>
+                <td><span class="badge {{ 'badge-green' if cr.status == 'approved' else 'badge-red' }}">{{ cr.status.title() }}</span></td>
+                <td>{{ cr.reviewer.profile.full_name if cr.reviewer and cr.reviewer.profile else '—' }}</td>
+                <td>{{ cr.reviewed_at.strftime('%b %d, %Y') if cr.reviewed_at else '—' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

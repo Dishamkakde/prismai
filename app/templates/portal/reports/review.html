@@ -1,0 +1,36 @@
+{% extends 'portal_base.html' %}
+{% block title %}Review Report — PRISM AI{% endblock %}
+{% block breadcrumb %}Reports / Review{% endblock %}
+{% block content %}
+<div class="report-view-page">
+    <div class="report-header">
+        <div>
+            <h1>Review Report</h1>
+            <p>{{ report.week_start.strftime('%B %d') }} – {{ report.week_end.strftime('%B %d, %Y') }}</p>
+            <p><strong>Submitted by:</strong> {{ report.author.profile.full_name if report.author.profile else report.author.email }}</p>
+            <p><i class="fas fa-folder"></i> {{ report.project.title }}</p>
+        </div>
+        <span class="badge badge-blue">{{ report.status }}</span>
+    </div>
+    <div class="report-grid">
+        {% for label, val in [('Work Completed', report.work_completed), ('Tasks Completed', report.tasks_completed),
+            ('Current Work', report.current_work), ('Research Progress', report.research_progress),
+            ('Challenges', report.challenges), ('Next Week Goals', report.next_week_goals),
+            ('Assistance Required', report.assistance_required), ('Supporting Links', report.supporting_links)] %}
+        {% if val %}
+        <div class="report-section"><h4>{{ label }}</h4><p>{{ val }}</p></div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <form method="POST" class="portal-form">
+        <div class="form-group">
+            <label>Your Feedback</label>
+            <textarea name="feedback" rows="4" placeholder="Provide constructive feedback...">{{ report.feedback or '' }}</textarea>
+        </div>
+        <div class="form-actions">
+            <a href="{{ url_for('reports.team_reports') }}" class="btn-cancel">← Back</a>
+            <button type="submit" class="btn-primary-sm"><i class="fas fa-check"></i> Submit Feedback</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

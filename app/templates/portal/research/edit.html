@@ -1,0 +1,67 @@
+{% extends 'portal_base.html' %}
+{% block title %}Edit Research Paper — PRISM AI{% endblock %}
+{% block breadcrumb %}Research Hub / Edit{% endblock %}
+{% block content %}
+<div class="form-page">
+    <div class="form-page-header"><h1><i class="fas fa-edit"></i> Edit Research Paper</h1></div>
+    <form method="POST" class="portal-form">
+        <div class="form-group">
+            <label>Title *</label>
+            <input type="text" name="title" value="{{ paper.title }}" required>
+        </div>
+        <div class="form-row-2">
+            <div class="form-group">
+                <label>Authors</label>
+                <input type="text" name="authors" value="{{ paper.authors or '' }}">
+            </div>
+            <div class="form-group">
+                <label>Source / Journal</label>
+                <input type="text" name="source" value="{{ paper.source or '' }}">
+            </div>
+        </div>
+        <div class="form-row-2">
+            <div class="form-group">
+                <label>Research Topic</label>
+                <input type="text" name="research_topic" value="{{ paper.research_topic or '' }}">
+            </div>
+            <div class="form-group">
+                <label>Publication Link</label>
+                <input type="url" name="publication_link" value="{{ paper.publication_link or '' }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Methodology</label>
+            <textarea name="methodology" rows="3">{{ paper.methodology or '' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>Key Findings</label>
+            <textarea name="key_findings" rows="4">{{ paper.key_findings or '' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>Research Gaps</label>
+            <textarea name="research_gaps" rows="3">{{ paper.research_gaps or '' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>References</label>
+            <textarea name="references" rows="3">{{ paper.references or '' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>Notes</label>
+            <textarea name="notes" rows="3">{{ paper.notes or '' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>Link to Project</label>
+            <select name="project_id">
+                <option value="">None</option>
+                {% for p in projects %}
+                <option value="{{ p.id }}" {{ 'selected' if paper.project_id == p.id }}>{{ p.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-actions">
+            <a href="{{ url_for('research.paper_detail', paper_id=paper.id) }}" class="btn-cancel">Cancel</a>
+            <button type="submit" class="btn-primary-sm"><i class="fas fa-save"></i> Save Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

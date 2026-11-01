@@ -1,0 +1,137 @@
+{% extends 'portal_base.html' %}
+{% block title %}Create Project — PRISM AI{% endblock %}
+{% block breadcrumb %}Projects / Create{% endblock %}
+{% block content %}
+<div class="form-page">
+    <div class="form-page-header">
+        <h1><i class="fas fa-plus-circle"></i> Create New Project</h1>
+    </div>
+    <form method="POST" class="portal-form">
+        <div class="form-section">
+            <h3>Basic Information</h3>
+            <div class="form-group">
+                <label>Project Title *</label>
+                <input type="text" name="title" placeholder="Enter project title" required>
+            </div>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>Category</label>
+                    <select name="category">
+                        <option value="">Select category</option>
+                        <option>Machine Learning</option>
+                        <option>Computer Vision</option>
+                        <option>Natural Language Processing</option>
+                        <option>Robotics</option>
+                        <option>Data Science</option>
+                        <option>Deep Learning</option>
+                        <option>AI Ethics</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Department</label>
+                    <select name="department">
+                        <option value="">Select department</option>
+                        <option>Research & Projects</option>
+                        <option>Technical Team</option>
+                        <option>Webmaster</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="3" placeholder="Brief project description..."></textarea>
+            </div>
+        </div>
+        <div class="form-section">
+            <h3>Research Details</h3>
+            <div class="form-group">
+                <label>Problem Statement</label>
+                <textarea name="problem_statement" rows="3" placeholder="What problem does this solve?"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Proposed Solution</label>
+                <textarea name="proposed_solution" rows="3" placeholder="How will you solve it?"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Objectives</label>
+                <textarea name="objectives" rows="3" placeholder="Key objectives of the project..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Technologies Used</label>
+                <input type="text" name="technologies" placeholder="Python, TensorFlow, OpenCV...">
+            </div>
+        </div>
+        <div class="form-section">
+            <h3>Team & Timeline</h3>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>Project Lead</label>
+                    <select name="lead_id">
+                        <option value="">Select lead</option>
+                        {% for m in members %}
+                        <option value="{{ m.id }}">{{ m.profile.full_name if m.profile else m.email }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="Planning">Planning</option>
+                        <option value="Research">Research</option>
+                        <option value="Development">Development</option>
+                        <option value="Testing">Testing</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Team Members</label>
+                <div class="multi-select-list">
+                    {% for m in members %}
+                    <label class="check-item">
+                        <input type="checkbox" name="member_ids" value="{{ m.id }}">
+                        <span>{{ m.profile.full_name if m.profile else m.email }}</span>
+                        <small>{{ m.role.replace('_', ' ').title() }}</small>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" name="start_date">
+                </div>
+                <div class="form-group">
+                    <label>Expected End Date</label>
+                    <input type="date" name="expected_end_date">
+                </div>
+            </div>
+        </div>
+        <div class="form-section">
+            <h3>Links & Visibility</h3>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>GitHub URL</label>
+                    <input type="url" name="github_url" placeholder="https://github.com/...">
+                </div>
+                <div class="form-group">
+                    <label>Demo URL</label>
+                    <input type="url" name="demo_url" placeholder="https://...">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Visibility</label>
+                <select name="visibility">
+                    <option value="private">Private (Members only)</option>
+                    <option value="public">Public (Visible on website)</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-actions">
+            <a href="{{ url_for('projects.my_projects') }}" class="btn-cancel">Cancel</a>
+            <button type="submit" class="btn-primary-sm"><i class="fas fa-check"></i> Create Project</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

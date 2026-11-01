@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Login — PRISM AI{% endblock %}
+{% block content %}
+<script>
+    // Old /auth/login now redirects to the choice page
+    window.location.href = "{{ url_for('auth.login') }}";
+</script>
+<div class="auth-page centered">
+    <div class="auth-card standalone">
+        <div class="brand-icon medium" style="margin:0 auto 1rem">P</div>
+        <p>Redirecting...</p>
+    </div>
+</div>
+{% endblock %}

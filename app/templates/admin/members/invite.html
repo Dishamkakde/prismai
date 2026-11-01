@@ -1,0 +1,81 @@
+{% extends 'portal_base.html' %}
+{% block title %}Invite Member — Admin{% endblock %}
+{% block breadcrumb %}Admin / Invite Member{% endblock %}
+{% block content %}
+<div class="form-page">
+    <div class="form-page-header">
+        <h1><i class="fas fa-user-plus"></i> Invite New Member</h1>
+        <p>Generate an invitation link and share it with the new member. They will sign up using the link, then you approve their account before they can access the portal.</p>
+    </div>
+
+    <div class="invite-how-it-works">
+        <div class="ihw-step"><span class="ihw-num">1</span><span>Fill in the form and generate link</span></div>
+        <div class="ihw-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="ihw-step"><span class="ihw-num">2</span><span>Share the link with the member</span></div>
+        <div class="ihw-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="ihw-step"><span class="ihw-num">3</span><span>They sign up with their Gmail</span></div>
+        <div class="ihw-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="ihw-step"><span class="ihw-num">4</span><span>You approve → they sign in</span></div>
+    </div>
+
+    <form method="POST" class="portal-form">
+        <div class="form-section">
+            <h3>Member Details</h3>
+            <div class="form-group">
+                <label><i class="fab fa-google"></i> Gmail Address *</label>
+                <input type="email" name="email" placeholder="member@gmail.com" required
+                       pattern="^[a-zA-Z0-9._%+\-]+@gmail\.com$"
+                       title="Must be a Gmail address">
+                <small>Only Gmail addresses are accepted (@gmail.com)</small>
+            </div>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>Role</label>
+                    <select name="role">
+                        {% for role in roles %}
+                        <option value="{{ role }}">{{ role.replace('_', ' ').title() }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Department</label>
+                    <select name="department">
+                        <option value="">Select department</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept }}">{{ dept }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-actions">
+            <a href="{{ url_for('admin.members') }}" class="btn-cancel">Cancel</a>
+            <button type="submit" class="btn-primary-sm">
+                <i class="fas fa-link"></i> Generate Invitation Link
+            </button>
+        </div>
+    </form>
+
+    <div class="invite-note">
+        <i class="fas fa-info-circle"></i>
+        <div>
+            <strong>How it works:</strong> After generating the link, it appears in the flash message above.
+            Copy and send it to the member. The link expires in <strong>7 days</strong>.
+            You can also view all invitations at
+            <a href="{{ url_for('admin.invitations') }}">Invitations</a>.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelector('.portal-form').addEventListener('submit', function(e) {
+    const email = document.querySelector('input[name="email"]').value.trim().toLowerCase();
+    if (!email.endsWith('@gmail.com')) {
+        e.preventDefault();
+        alert('Please use a Gmail address (@gmail.com)');
+    }
+});
+</script>
+{% endblock %}

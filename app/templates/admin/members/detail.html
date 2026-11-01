@@ -1,0 +1,79 @@
+{% extends 'portal_base.html' %}
+{% block title %}{{ profile.full_name if profile else user.email }} — Admin{% endblock %}
+{% block breadcrumb %}Admin / Members / Detail{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-user"></i> {{ profile.full_name if profile else user.email }}</h1>
+    <div class="title-row-actions">
+        <a href="{{ url_for('admin.edit_member', user_id=user.id) }}" class="btn-primary-sm"><i class="fas fa-edit"></i> Edit</a>
+        <form method="POST" action="{{ url_for('admin.toggle_member_active', user_id=user.id) }}" style="display:inline">
+            <button type="submit" class="{{ 'btn-danger-sm' if user.is_active else 'btn-sm-outline' }}">
+                <i class="fas fa-{{ 'ban' if user.is_active else 'check' }}"></i>
+                {{ 'Deactivate' if user.is_active else 'Activate' }}
+            </button>
+        </form>
+    </div>
+</div>
+<div class="member-detail-grid">
+    <div class="member-detail-card">
+        <div class="mdc-avatar">
+            {% if profile and profile.profile_picture and profile.profile_picture != 'default_avatar.png' %}
+            <img src="{{ url_for('static', filename='uploads/' + profile.profile_picture) }}" alt="">
+            {% else %}
+            <div class="mdc-avatar-placeholder">{{ profile.full_name[0].upper() if profile else 'M' }}</div>
+            {% endif %}
+        </div>
+        <h3>{{ profile.full_name if profile else '—' }}</h3>
+        <p class="mdc-role">{{ user.role.replace('_',' ').title() }}</p>
+        <span class="status-badge {{ 'active' if user.is_active else 'inactive' }}">{{ 'Active' if user.is_active else 'Inactive' }}</span>
+        <div class="mdc-info">
+            <div class="info-row"><span>Member ID</span><strong>{{ user.member_id }}</strong></div>
+            <div class="info-row"><span>Email</span><strong>{{ user.email }}</strong></div>
+            <div class="info-row"><span>USN</span><strong>{{ profile.usn if profile else '—' }}</strong></div>
+            <div class="info-row"><span>Branch</span><strong>{{ profile.branch if profile else '—' }}</strong></div>
+            <div class="info-row"><span>Year</span><strong>{{ profile.academic_year if profile else '—' }}</strong></div>
+            <div class="info-row"><span>Department</span><strong>{{ profile.department if profile else '—' }}</strong></div>
+            <div class="info-row"><span>Designation</span><strong>{{ profile.designation if profile else '—' }}</strong></div>
+            <div class="info-row"><span>Points</span><strong>{{ profile.contribution_points if profile else 0 }}</strong></div>
+            <div class="info-row"><span>Joined</span><strong>{{ profile.joined_date.strftime('%b %d, %Y') if profile and profile.joined_date else '—' }}</strong></div>
+            <div class="info-row"><span>Last Login</span><strong>{{ user.last_login.strftime('%b %d, %Y') if user.last_login else '—' }}</strong></div>
+        </div>
+    </div>
+    <div class="member-detail-right">
+        <div class="admin-card">
+            <h4><i class="fas fa-project-diagram"></i> Projects ({{ user.projects|length }})</h4>
+            {% for p in user.projects %}
+            <a href="{{ url_for('projects.project_detail', project_id=p.id) }}" class="mini-list-item">
+                <span>{{ p.title }}</span><span class="status-mini status-{{ p.status.lower().replace(' ','-') }}">{{ p.status }}</span>
+            </a>
+            {% else %}<p class="text-muted">No projects.</p>{% endfor %}
+        </div>
+        <div class="admin-card">
+            <h4><i class="fas fa-tasks"></i> Tasks ({{ tasks|length }})</h4>
+            {% for t in tasks[:5] %}
+            <a href="{{ url_for('tasks.task_detail', task_id=t.id) }}" class="mini-list-item">
+                <span>{{ t.title }}</span><span class="status-mini">{{ t.status }}</span>
+            </a>
+            {% else %}<p class="text-muted">No tasks.</p>{% endfor %}
+        </div>
+        <div class="admin-card">
+            <h4><i class="fas fa-trophy"></i> Achievements ({{ achievements|length }})</h4>
+            {% for a in achievements %}
+            <div class="mini-list-item">
+                <span>{{ a.title }}</span>
+                <span class="{{ 'badge-green' if a.is_verified else 'badge-yellow' }} badge">{{ 'Verified' if a.is_verified else 'Pending' }}</span>
+            </div>
+            {% else %}<p class="text-muted">No achievements.</p>{% endfor %}
+        </div>
+        <div class="admin-card">
+            <h4><i class="fas fa-file-alt"></i> Recent Reports</h4>
+            {% for r in reports %}
+            <a href="{{ url_for('reports.view_report', report_id=r.id) }}" class="mini-list-item">
+                <span>Week of {{ r.week_start.strftime('%b %d') }}</span>
+                <span class="{{ 'badge-green' if r.status == 'Reviewed' else 'badge-blue' }} badge">{{ r.status }}</span>
+            </a>
+            {% else %}<p class="text-muted">No reports.</p>{% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'portal_base.html' %}
+{% block title %}{{ announcement.title }} — PRISM AI{% endblock %}
+{% block breadcrumb %}Announcements / View{% endblock %}
+{% block content %}
+<div class="announcement-view-page">
+    <div class="av-header">
+        <div class="av-meta">
+            {% if announcement.is_pinned %}<span class="pin-badge"><i class="fas fa-thumbtack"></i> Pinned</span>{% endif %}
+            <span class="apc-category">{{ announcement.category }}</span>
+            <span class="av-date">{{ announcement.created_at.strftime('%B %d, %Y at %H:%M') }}</span>
+        </div>
+        <h1>{{ announcement.title }}</h1>
+        <p class="av-author">Posted by <strong>{{ announcement.author.profile.full_name if announcement.author.profile else '—' }}</strong></p>
+        {% if current_user.is_admin() %}
+        <a href="{{ url_for('announcements.edit_announcement', ann_id=announcement.id) }}" class="btn-sm-outline"><i class="fas fa-edit"></i> Edit</a>
+        {% endif %}
+    </div>
+    <div class="av-content">{{ announcement.content }}</div>
+    <a href="{{ url_for('announcements.list_announcements') }}" class="btn-cancel">← Back to Announcements</a>
+</div>
+{% endblock %}

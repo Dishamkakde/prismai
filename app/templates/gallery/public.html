@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Gallery — PRISM AI{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="page-hero-content">
+    <div class="section-tag">Gallery</div>
+    <h1>Photo Gallery</h1>
+    <p>Memories from PRISM AI events, workshops, hackathons and activities.</p>
+  </div>
+</section>
+
+<section style="padding:64px 0">
+  <div class="section-container">
+    {% if albums %}
+    <div class="gallery-grid">
+      {% for album in albums %}
+      <a href="{{ url_for('gallery.view_album', album_id=album.id) }}" class="gallery-album-card">
+        <div class="gac-cover">
+          {% if album.cover_image %}
+          <img src="{{ url_for('static', filename='uploads/' + album.cover_image) }}" alt="{{ album.title }}">
+          {% else %}
+          <div class="gac-no-cover"><i class="fas fa-images"></i></div>
+          {% endif %}
+          <div class="gac-overlay">
+            <span class="gac-count"><i class="fas fa-images"></i> {{ album.photo_count() }}</span>
+          </div>
+        </div>
+        <div class="gac-info">
+          <div class="gac-meta">
+            <span class="gac-category">{{ album.category or 'General' }}</span>
+            {% if album.event_date %}
+            <span class="gac-date">{{ album.event_date.strftime('%b %d, %Y') }}</span>
+            {% endif %}
+          </div>
+          <h3>{{ album.title }}</h3>
+          {% if album.description %}
+          <p>{{ album.description[:80] }}{% if album.description|length > 80 %}...{% endif %}</p>
+          {% endif %}
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state large">
+      <i class="fas fa-images"></i>
+      <h3>No albums yet</h3>
+      <p>Photo albums will appear here once the admin publishes them.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

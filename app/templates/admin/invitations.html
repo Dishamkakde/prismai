@@ -1,0 +1,91 @@
+{% extends 'portal_base.html' %}
+{% block title %}Invitations — Admin{% endblock %}
+{% block breadcrumb %}Admin / Invitations{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-envelope"></i> Invitations</h1>
+    <a href="{{ url_for('admin.invite_member') }}" class="btn-primary-sm">
+        <i class="fas fa-plus"></i> New Invitation
+    </a>
+</div>
+
+{% if invites %}
+<div class="table-wrap">
+    <table class="portal-table">
+        <thead>
+            <tr>
+                <th>Gmail</th>
+                <th>Role</th>
+                <th>Department</th>
+                <th>Status</th>
+                <th>Expires</th>
+                <th>Created</th>
+                <th>Registration Link</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inv in invites %}
+            <tr>
+                <td><strong>{{ inv.email }}</strong></td>
+                <td>{{ inv.role.replace('_',' ').title() }}</td>
+                <td>{{ inv.department or '—' }}</td>
+                <td>
+                    <span class="badge {{ 'badge-green' if inv.is_used else 'badge-blue' }}">
+                        {{ 'Used' if inv.is_used else 'Pending' }}
+                    </span>
+                </td>
+                <td>
+                    {% if inv.expires_at %}
+                        {% set now = namespace(expired=false) %}
+                        {{ inv.expires_at.strftime('%b %d, %Y') }}
+                    {% else %}—{% endif %}
+                </td>
+                <td>{{ inv.created_at.strftime('%b %d, %Y') }}</td>
+                <td>
+                    {% if not inv.is_used %}
+                    {% set reg_url = url_for('auth.register', token=inv.token, _external=True) %}
+                    <div class="invite-link-cell">
+                        <input type="text" class="invite-link-input" id="link-{{ inv.id }}"
+                               value="{{ reg_url }}" readonly>
+                        <button class="copy-btn" onclick="copyLink('link-{{ inv.id }}', this)"
+                                title="Copy link">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    {% else %}
+                    <span style="color:var(--text-dim);font-size:0.8rem">Link used</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state large">
+    <i class="fas fa-envelope-open"></i>
+    <h3>No invitations yet</h3>
+    <p>Create an invitation to let new members join PRISM AI.</p>
+    <a href="{{ url_for('admin.invite_member') }}" class="btn-primary-sm">Create Invitation</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyLink(inputId, btn) {
+    const input = document.getElementById(inputId);
+    input.select();
+    input.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(input.value).then(() => {
+        const icon = btn.querySelector('i');
+        icon.className = 'fas fa-check';
+        btn.style.color = '#4ade80';
+        setTimeout(() => {
+            icon.className = 'fas fa-copy';
+            btn.style.color = '';
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}

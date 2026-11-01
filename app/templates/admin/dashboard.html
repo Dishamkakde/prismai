@@ -1,0 +1,186 @@
+{% extends 'portal_base.html' %}
+{% block title %}Admin Dashboard — PRISM AI{% endblock %}
+{% block breadcrumb %}Admin Dashboard{% endblock %}
+{% block content %}
+
+<!-- ── PROFILE HEADER CARD (same as member dashboard) ── -->
+<div class="dash-profile-card">
+    <div class="dpc-avatar-wrap">
+        {% if current_user.profile and current_user.profile.profile_picture and current_user.profile.profile_picture != 'default_avatar.png' %}
+            <img src="{{ url_for('static', filename='uploads/' + current_user.profile.profile_picture) }}"
+                 alt="Avatar" class="dpc-avatar">
+        {% else %}
+            <div class="dpc-avatar-placeholder">
+                {{ current_user.profile.full_name[0].upper() if current_user.profile else 'A' }}
+            </div>
+        {% endif %}
+        <div class="dpc-online-dot admin-dot"></div>
+    </div>
+    <div class="dpc-info">
+        <h1>{{ current_user.profile.full_name if current_user.profile else 'Administrator' }}</h1>
+        <div class="dpc-meta">
+            <span class="dpc-role-badge admin-badge">
+                <i class="fas fa-shield-alt"></i>
+                {{ current_user.role.replace('_', ' ').title() }}
+            </span>
+            {% if current_user.profile %}
+            {% if current_user.profile.department %}<span class="dpc-chip"><i class="fas fa-building"></i> {{ current_user.profile.department }}</span>{% endif %}
+            {% if current_user.profile.designation %}<span class="dpc-chip"><i class="fas fa-briefcase"></i> {{ current_user.profile.designation }}</span>{% endif %}
+            {% endif %}
+        </div>
+        <div class="dpc-links">
+            {% if current_user.profile and current_user.profile.github_url %}<a href="{{ current_user.profile.github_url }}" target="_blank"><i class="fab fa-github"></i></a>{% endif %}
+            {% if current_user.profile and current_user.profile.linkedin_url %}<a href="{{ current_user.profile.linkedin_url }}" target="_blank"><i class="fab fa-linkedin"></i></a>{% endif %}
+        </div>
+    </div>
+    <div class="dpc-stats">
+        <div class="dpc-stat">
+            <span>{{ total_members }}</span>
+            <label>Total Members</label>
+        </div>
+        <div class="dpc-stat">
+            <span>{{ total_projects }}</span>
+            <label>Projects</label>
+        </div>
+        <div class="dpc-stat admin-alert-stat {{ 'has-pending' if pending_approvals > 0 }}">
+            <span>{{ pending_approvals }}</span>
+            <label>Pending Approvals</label>
+        </div>
+        <div class="dpc-stat">
+            <span>{{ weekly_submissions }}</span>
+            <label>Reports This Week</label>
+        </div>
+    </div>
+    <div class="dpc-actions">
+        <a href="{{ url_for('portal.profile') }}" class="btn-sm-outline">
+            <i class="fas fa-user-edit"></i> My Profile
+        </a>
+        <a href="{{ url_for('admin.pending_members') }}" class="btn-sm-primary {{ 'btn-alert' if pending_approvals > 0 }}">
+            <i class="fas fa-user-clock"></i> Approvals
+            {% if pending_approvals > 0 %}
+            <span class="btn-badge">{{ pending_approvals }}</span>
+            {% endif %}
+        </a>
+    </div>
+</div>
+
+<!-- ── QUICK ACTIONS ── -->
+<div class="admin-quick-actions">
+    <a href="{{ url_for('admin.invite_member') }}" class="qa-card">
+        <i class="fas fa-user-plus"></i>
+        <span>Invite Member</span>
+    </a>
+    <a href="{{ url_for('projects.create_project') }}" class="qa-card">
+        <i class="fas fa-plus-circle"></i>
+        <span>New Project</span>
+    </a>
+    <a href="{{ url_for('admin.change_requests') }}" class="qa-card">
+        <i class="fas fa-exchange-alt"></i>
+        <span>Change Requests</span>
+    </a>
+    <a href="{{ url_for('announcements.create_announcement') }}" class="qa-card">
+        <i class="fas fa-bullhorn"></i>
+        <span>Announcement</span>
+    </a>
+    <a href="{{ url_for('admin.export_members') }}" class="qa-card">
+        <i class="fas fa-download"></i>
+        <span>Export Members</span>
+    </a>
+    <a href="{{ url_for('admin.audit_logs') }}" class="qa-card">
+        <i class="fas fa-history"></i>
+        <span>Audit Logs</span>
+    </a>
+</div>
+
+<!-- ── STAT CARDS ── -->
+<div class="admin-stat-grid">
+    <div class="admin-stat-card blue">
+        <i class="fas fa-users"></i>
+        <div><span class="asv">{{ total_members }}</span><label>Total Members</label></div>
+    </div>
+    <div class="admin-stat-card green">
+        <i class="fas fa-user-check"></i>
+        <div><span class="asv">{{ active_members }}</span><label>Active Members</label></div>
+    </div>
+    <div class="admin-stat-card purple">
+        <i class="fas fa-project-diagram"></i>
+        <div><span class="asv">{{ total_projects }}</span><label>Total Projects</label></div>
+    </div>
+    <div class="admin-stat-card orange">
+        <i class="fas fa-spinner"></i>
+        <div><span class="asv">{{ ongoing_projects }}</span><label>Ongoing</label></div>
+    </div>
+    <div class="admin-stat-card teal">
+        <i class="fas fa-check-circle"></i>
+        <div><span class="asv">{{ completed_projects }}</span><label>Completed</label></div>
+    </div>
+    <div class="admin-stat-card yellow">
+        <i class="fas fa-tasks"></i>
+        <div><span class="asv">{{ pending_tasks }}</span><label>Pending Tasks</label></div>
+    </div>
+    <div class="admin-stat-card red">
+        <i class="fas fa-exclamation-circle"></i>
+        <div><span class="asv">{{ overdue_tasks }}</span><label>Overdue</label></div>
+    </div>
+    <div class="admin-stat-card cyan">
+        <i class="fas fa-file-alt"></i>
+        <div><span class="asv">{{ weekly_submissions }}</span><label>Reports/Week</label></div>
+    </div>
+</div>
+
+<!-- ── ADMIN GRID ── -->
+<div class="admin-dash-grid">
+    <div class="admin-card">
+        <h3><i class="fas fa-building"></i> Members by Department</h3>
+        <div class="dept-list">
+            {% for dept, count in dept_stats %}
+            <div class="dept-stat-row">
+                <span class="dept-name">{{ dept or 'Unassigned' }}</span>
+                <div class="dept-bar-wrap">
+                    <div class="dept-bar" style="width: {{ (count / (total_members or 1) * 100)|int }}%"></div>
+                </div>
+                <span class="dept-count">{{ count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="admin-card-actions">
+            <a href="{{ url_for('admin.members') }}" class="btn-sm-outline">Manage Members →</a>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <h3><i class="fas fa-project-diagram"></i> Projects by Status</h3>
+        <div class="status-list">
+            {% for status, count in status_stats %}
+            <div class="status-stat-row">
+                <span class="status-dot-label status-{{ status.lower().replace(' ', '-') }}">{{ status }}</span>
+                <span class="status-count">{{ count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="admin-card-actions">
+            <a href="{{ url_for('admin.projects') }}" class="btn-sm-outline">Manage Projects →</a>
+        </div>
+    </div>
+
+    <div class="admin-card wide">
+        <h3><i class="fas fa-history"></i> Recent Activity</h3>
+        <div class="activity-list">
+            {% for log in recent_logs %}
+            <div class="activity-row">
+                <div class="act-icon"><i class="fas fa-dot-circle"></i></div>
+                <div class="act-info">
+                    <span class="act-action">{{ log.action.replace('_', ' ').title() }}</span>
+                    {% if log.user %}<span class="act-user">by {{ log.user.profile.full_name if log.user.profile else log.user.email }}</span>{% endif %}
+                    {% if log.resource_type %}<span class="act-resource">{{ log.resource_type }}</span>{% endif %}
+                </div>
+                <span class="act-time">{{ log.created_at.strftime('%b %d, %H:%M') }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="admin-card-actions">
+            <a href="{{ url_for('admin.audit_logs') }}" class="btn-sm-outline">View All Logs →</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

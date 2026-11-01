@@ -1,0 +1,137 @@
+{% extends 'portal_base.html' %}
+{% block title %}Manage Album — {{ album.title }}{% endblock %}
+{% block breadcrumb %}Admin / Gallery / {{ album.title }}{% endblock %}
+{% block content %}
+<div class="page-title-row">
+  <h1><i class="fas fa-edit"></i> {{ album.title }}</h1>
+  <div class="title-row-actions">
+    <a href="{{ url_for('gallery.view_album', album_id=album.id) }}" class="btn-sm-outline" target="_blank">
+      <i class="fas fa-eye"></i> Preview
+    </a>
+    <form method="POST" style="display:inline">
+      <input type="hidden" name="action" value="toggle_publish">
+      <button type="submit" class="btn-sm-primary {{ '' if album.is_published else '' }}"
+              style="{{ 'background:var(--success)' if album.is_published else '' }}">
+        <i class="fas fa-{{ 'eye-slash' if album.is_published else 'globe' }}"></i>
+        {{ 'Unpublish' if album.is_published else 'Publish' }}
+      </button>
+    </form>
+    <form method="POST" style="display:inline" onsubmit="return confirm('Delete this entire album and all its photos?')">
+      <input type="hidden" name="action" value="delete_album">
+      <button type="submit" class="btn-danger-sm"><i class="fas fa-trash"></i> Delete Album</button>
+    </form>
+  </div>
+</div>
+
+<div class="dash-grid">
+  <!-- EDIT ALBUM INFO -->
+  <div class="dash-section" style="grid-column:span 5">
+    <div class="section-title-row"><h2><i class="fas fa-info-circle"></i> Album Details</h2></div>
+    <form method="POST" class="portal-form">
+      <input type="hidden" name="action" value="edit_album">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" name="title" value="{{ album.title }}" required>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description" rows="2">{{ album.description or '' }}</textarea>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label>Category</label>
+          <select name="category">
+            {% for cat in categories %}
+            <option value="{{ cat }}" {{ 'selected' if album.category == cat }}>{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Event Date</label>
+          <input type="date" name="event_date" value="{{ album.event_date.strftime('%Y-%m-%d') if album.event_date else '' }}">
+        </div>
+      </div>
+      <button type="submit" class="btn-primary-sm"><i class="fas fa-save"></i> Save Details</button>
+    </form>
+  </div>
+
+  <!-- ADD PHOTOS -->
+  <div class="dash-section" style="grid-column:span 7">
+    <div class="section-title-row"><h2><i class="fas fa-upload"></i> Add More Photos</h2></div>
+    <form method="POST" enctype="multipart/form-data" class="portal-form">
+      <input type="hidden" name="action" value="add_photos">
+      <div class="form-group">
+        <div class="file-upload-zone" onclick="document.getElementById('morePhotos').click()">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>Click to select photos</p>
+          <small>PNG, JPG, JPEG, WEBP, GIF</small>
+          <input type="file" id="morePhotos" name="photos" multiple accept="image/*"
+                 style="display:none" onchange="document.getElementById('addCount').textContent=this.files.length+' selected'">
+        </div>
+        <p id="addCount" style="font-size:0.82rem;color:var(--text-secondary);margin-top:5px"></p>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label>Caption (optional)</label>
+          <input type="text" name="caption" placeholder="Default caption for new photos">
+        </div>
+        <div class="form-group">
+          <label>Photographer Credit</label>
+          <input type="text" name="credit" placeholder="Photographer name">
+        </div>
+      </div>
+      <button type="submit" class="btn-primary-sm"><i class="fas fa-upload"></i> Upload Photos</button>
+    </form>
+  </div>
+</div>
+
+<!-- PHOTOS GRID -->
+<div class="admin-card" style="margin-top:1.25rem">
+  <h3><i class="fas fa-images"></i> Photos ({{ photos|length }})</h3>
+  {% if photos %}
+  <div class="manage-photos-grid">
+    {% for photo in photos %}
+    <div class="manage-photo-card">
+      <div class="mpc-img-wrap">
+        <img src="{{ url_for('static', filename='uploads/' + photo.file_path) }}" alt="">
+        <div class="mpc-actions">
+          <form method="POST" style="display:inline">
+            <input type="hidden" name="action" value="set_cover">
+            <input type="hidden" name="photo_id" value="{{ photo.id }}">
+            <button type="submit" class="mpc-btn {{ 'active' if album.cover_image == photo.file_path }}"
+                    title="Set as Cover">
+              <i class="fas fa-star"></i>
+            </button>
+          </form>
+          <form method="POST" style="display:inline"
+                onsubmit="return confirm('Delete this photo?')">
+            <input type="hidden" name="action" value="delete_photo">
+            <input type="hidden" name="photo_id" value="{{ photo.id }}">
+            <button type="submit" class="mpc-btn danger" title="Delete Photo">
+              <i class="fas fa-trash"></i>
+            </button>
+          </form>
+        </div>
+        {% if album.cover_image == photo.file_path %}
+        <div class="cover-label">Cover</div>
+        {% endif %}
+      </div>
+      <div class="mpc-info">
+        <form method="POST" class="portal-form" style="gap:5px">
+          <input type="hidden" name="action" value="update_caption">
+          <input type="hidden" name="photo_id" value="{{ photo.id }}">
+          <input type="text" name="caption" value="{{ photo.caption or '' }}" placeholder="Caption...">
+          <input type="text" name="credit"  value="{{ photo.credit or '' }}"  placeholder="Credit...">
+          <button type="submit" class="btn-sm-primary" style="padding:5px 10px;font-size:0.75rem">
+            <i class="fas fa-save"></i> Save
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state sm"><i class="fas fa-camera"></i><p>No photos yet. Upload some above.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'portal_base.html' %}
+{% block title %}{{ paper.title }} — PRISM AI{% endblock %}
+{% block breadcrumb %}Research Hub / Paper{% endblock %}
+{% block content %}
+<div class="research-detail-page">
+    <div class="rd-header">
+        <div>
+            {% if paper.research_topic %}<span class="topic-badge">{{ paper.research_topic }}</span>{% endif %}
+            <h1>{{ paper.title }}</h1>
+            {% if paper.authors %}<p class="rd-authors"><i class="fas fa-users"></i> {{ paper.authors }}</p>{% endif %}
+            <div class="rd-meta">
+                {% if paper.source %}<span><i class="fas fa-book"></i> {{ paper.source }}</span>{% endif %}
+                {% if paper.publication_date %}<span><i class="fas fa-calendar"></i> {{ paper.publication_date.strftime('%B %Y') }}</span>{% endif %}
+            </div>
+        </div>
+        <div class="rd-actions">
+            {% if paper.publication_link %}
+            <a href="{{ paper.publication_link }}" target="_blank" class="btn-sm-outline"><i class="fas fa-external-link-alt"></i> View Paper</a>
+            {% endif %}
+            {% if current_user.is_admin() or paper.uploaded_by == current_user.id %}
+            <a href="{{ url_for('research.edit_paper', paper_id=paper.id) }}" class="btn-sm-outline"><i class="fas fa-edit"></i> Edit</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="rd-body">
+        {% for label, content in [('Methodology', paper.methodology), ('Key Findings', paper.key_findings),
+            ('Research Gaps', paper.research_gaps), ('References', paper.references), ('Notes', paper.notes)] %}
+        {% if content %}
+        <div class="rd-section">
+            <h4>{{ label }}</h4>
+            <p>{{ content }}</p>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <div class="rd-footer">
+        <p>Uploaded by <strong>{{ paper.uploader.profile.full_name if paper.uploader.profile else '—' }}</strong> on {{ paper.created_at.strftime('%B %d, %Y') }}</p>
+        {% if paper.project %}<p>Project: <a href="{{ url_for('projects.project_detail', project_id=paper.project.id) }}">{{ paper.project.title }}</a></p>{% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Welcome — PRISM AI{% endblock %}
+{% block content %}
+<div class="auth-choice-page">
+  <div class="auth-choice-hero">
+    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="PRISM AI" class="choice-logo">
+    <h1>PRISM <span>AI</span></h1>
+    <p>The AI Club of RNSIT — Explore. Innovate. Impact.</p>
+  </div>
+
+  <div class="choice-cards">
+    <a href="{{ url_for('auth.signin') }}" class="choice-card login-card">
+      <div class="choice-icon"><i class="fas fa-sign-in-alt"></i></div>
+      <div class="choice-body">
+        <h2>Sign In</h2>
+        <p>Already a member? Sign in to access your dashboard, projects, and workspace.</p>
+      </div>
+      <div class="choice-arrow"><i class="fas fa-arrow-right"></i></div>
+    </a>
+
+    <a href="{{ url_for('auth.signup') }}" class="choice-card signup-card">
+      <div class="choice-icon"><i class="fas fa-user-plus"></i></div>
+      <div class="choice-body">
+        <h2>Sign Up</h2>
+        <p>Have an invitation code? Create your account — pending admin approval.</p>
+      </div>
+      <div class="choice-arrow"><i class="fas fa-arrow-right"></i></div>
+    </a>
+  </div>
+
+  <div class="guest-browse">
+    <p class="role-logins-label">Just want to browse the website?</p>
+    <a href="{{ url_for('main.index') }}" class="role-login-pill browse">
+      <i class="fas fa-globe"></i> Continue without signing in
+    </a>
+  </div>
+</div>
+{% endblock %}

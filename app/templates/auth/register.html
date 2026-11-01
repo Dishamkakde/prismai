@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% block title %}Complete Registration — PRISM AI{% endblock %}
+{% block content %}
+
+<div class="register-page">
+
+  <!-- LEFT PANEL -->
+  <div class="register-left">
+    <a href="{{ url_for('main.index') }}" class="reg-brand">
+      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="PRISM AI">
+      <span>PRISM <strong>AI</strong></span>
+    </a>
+
+    <div class="reg-welcome">
+      <div class="reg-invite-badge">
+        <i class="fas fa-envelope-open-text"></i> Invitation Accepted
+      </div>
+      <h1>Welcome to<br>PRISM AI</h1>
+      <p>You've been invited to join the AI Club of RNSIT. Complete the form to create your account.</p>
+    </div>
+
+    <!-- Invitation details box -->
+    <div class="reg-invite-card">
+      <div class="ric-row">
+        <span><i class="fas fa-envelope"></i> Email</span>
+        <strong>{{ invitation.email }}</strong>
+      </div>
+      <div class="ric-row">
+        <span><i class="fas fa-user-tag"></i> Role</span>
+        <strong>{{ invitation.role.replace('_',' ').title() }}</strong>
+      </div>
+      {% if invitation.department %}
+      <div class="ric-row">
+        <span><i class="fas fa-building"></i> Department</span>
+        <strong>{{ invitation.department }}</strong>
+      </div>
+      {% endif %}
+      {% if invitation.expires_at %}
+      <div class="ric-row">
+        <span><i class="fas fa-clock"></i> Link Expires</span>
+        <strong>{{ invitation.expires_at.strftime('%b %d, %Y') }}</strong>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Progress steps -->
+    <div class="reg-steps">
+      <div class="reg-step done">
+        <div class="rs-dot"><i class="fas fa-check"></i></div>
+        <span>Invitation verified</span>
+      </div>
+      <div class="reg-step-line"></div>
+      <div class="reg-step active">
+        <div class="rs-dot">2</div>
+        <span>Fill your details</span>
+      </div>
+      <div class="reg-step-line"></div>
+      <div class="reg-step">
+        <div class="rs-dot">3</div>
+        <span>Admin approval</span>
+      </div>
+      <div class="reg-step-line"></div>
+      <div class="reg-step">
+        <div class="rs-dot">4</div>
+        <span>Sign in</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL — FORM -->
+  <div class="register-right">
+    <div class="reg-form-wrap">
+      <div class="reg-form-header">
+        <h2>Create Your Account</h2>
+        <p>Fill in your details below. After submission your account will be reviewed by the PRISM AI admin before you can sign in.</p>
+      </div>
+
+      {% if already_logged_in %}
+      <div class="reg-loggedin-warning">
+        <div class="rliw-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <div>
+          <strong>You are currently signed in as {{ current_user.email }}</strong>
+          <p>
+            This invitation link is for <strong>{{ invitation.email }}</strong>.
+            To register as the invited person, please
+            <a href="{{ url_for('auth.logout') }}?next={{ request.url }}">sign out first</a>,
+            then open this link again — or share this link with the invited person to complete on their own device.
+          </p>
+          <div style="margin-top:0.75rem;display:flex;gap:8px;flex-wrap:wrap">
+            <a href="{{ url_for('auth.logout') }}" class="btn-sm-primary">
+              <i class="fas fa-sign-out-alt"></i> Sign Out Now
+            </a>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn-sm-outline">
+              <i class="fas fa-arrow-left"></i> Back to Admin Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <form method="POST" class="reg-form" id="regForm" {% if already_logged_in %}style="display:none"{% endif %}>
+
+        <!-- PERSONAL INFO -->
+        <div class="reg-section">
+          <div class="reg-section-title"><i class="fas fa-user"></i> Personal Information</div>
+          <div class="form-group">
+            <label>Full Name <span class="req">*</span></label>
+            <input type="text" name="full_name" placeholder="As per college records" required autofocus>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>USN / Roll Number</label>
+              <input type="text" name="usn" placeholder="e.g. 1RN22CS001">
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" name="phone" placeholder="10-digit mobile">
+            </div>
+          </div>
+        </div>
+
+        <!-- ACADEMIC INFO -->
+        <div class="reg-section">
+          <div class="reg-section-title"><i class="fas fa-graduation-cap"></i> Academic Details</div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Branch / Department</label>
+              <select name="branch">
+                <option value="">Select your branch</option>
+                <option>Computer Science &amp; Engineering</option>
+                <option>Information Science &amp; Engineering</option>
+                <option>Electronics &amp; Communication</option>
+                <option>Electrical &amp; Electronics</option>
+                <option>Mechanical Engineering</option>
+                <option>Civil Engineering</option>
+                <option>Artificial Intelligence &amp; ML</option>
+                <option>Data Science</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Academic Year</label>
+              <select name="academic_year">
+                <option value="">Select year</option>
+                <option>1st Year (2024–25)</option>
+                <option>2nd Year (2023–24)</option>
+                <option>3rd Year (2022–23)</option>
+                <option>4th Year (2021–22)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="reg-section">
+          <div class="reg-section-title"><i class="fas fa-lock"></i> Set Password</div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Password <span class="req">*</span></label>
+              <div class="input-group">
+                <input type="password" name="password" id="pw1" placeholder="Minimum 8 characters" required>
+                <button type="button" class="input-toggle" onclick="togglePassword('pw1', this)">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Confirm Password <span class="req">*</span></label>
+              <div class="input-group">
+                <input type="password" name="confirm_password" id="pw2" placeholder="Repeat password" required>
+                <button type="button" class="input-toggle" onclick="togglePassword('pw2', this)">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="password-strength" id="pwStrength" style="display:none">
+            <div class="pw-bar"><div class="pw-fill" id="pwFill"></div></div>
+            <span id="pwLabel">Weak</span>
+          </div>
+        </div>
+
+        <!-- APPROVAL NOTE -->
+        <div class="reg-approval-note">
+          <div class="ran-icon"><i class="fas fa-user-clock"></i></div>
+          <div>
+            <strong>Pending Admin Approval</strong>
+            <p>After you submit, the PRISM AI admin will review your details and approve your account. You will be notified once approved and can then sign in.</p>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-reg-submit">
+          <i class="fas fa-paper-plane"></i> Submit Registration Request
+        </button>
+
+        <p class="reg-signin-link">
+          Already have an account?
+          <a href="{{ url_for('auth.signin') }}">Sign in here</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Password strength indicator
+document.getElementById('pw1').addEventListener('input', function() {
+  const val = this.value;
+  const el = document.getElementById('pwStrength');
+  const fill = document.getElementById('pwFill');
+  const label = document.getElementById('pwLabel');
+
+  if (!val) { el.style.display = 'none'; return; }
+  el.style.display = 'flex';
+
+  let score = 0;
+  if (val.length >= 8)  score++;
+  if (val.length >= 12) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+
+  const levels = [
+    { pct: '20%', color: '#E53E3E', text: 'Too short' },
+    { pct: '40%', color: '#DD6B20', text: 'Weak' },
+    { pct: '60%', color: '#D69B36', text: 'Fair' },
+    { pct: '80%', color: '#248A62', text: 'Good' },
+    { pct: '100%', color: '#1A6B4A', text: 'Strong' },
+  ];
+  const level = levels[Math.min(score, 4)];
+  fill.style.width = level.pct;
+  fill.style.background = level.color;
+  label.textContent = level.text;
+  label.style.color = level.color;
+});
+
+// Confirm password match
+document.getElementById('regForm').addEventListener('submit', function(e) {
+  const p1 = document.getElementById('pw1').value;
+  const p2 = document.getElementById('pw2').value;
+  if (p1 !== p2) {
+    e.preventDefault();
+    alert('Passwords do not match. Please check and try again.');
+  }
+});
+</script>
+{% endblock %}

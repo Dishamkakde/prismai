@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}{{ album.title }} — PRISM AI Gallery{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="page-hero-content">
+    <div class="section-tag">{{ album.category or 'Gallery' }}</div>
+    <h1>{{ album.title }}</h1>
+    {% if album.event_date %}<p>{{ album.event_date.strftime('%B %d, %Y') }}</p>{% endif %}
+    {% if album.description %}<p>{{ album.description }}</p>{% endif %}
+  </div>
+</section>
+
+<section style="padding:56px 0">
+  <div class="section-container">
+    <div style="margin-bottom:1.25rem">
+      <a href="{{ url_for('gallery.public_gallery') }}" class="btn-sm-outline">
+        <i class="fas fa-arrow-left"></i> Back to Gallery
+      </a>
+      {% if current_user.is_authenticated and current_user.is_admin() %}
+      <a href="{{ url_for('gallery.manage_album', album_id=album.id) }}" class="btn-sm-primary" style="margin-left:8px">
+        <i class="fas fa-edit"></i> Manage Album
+      </a>
+      {% endif %}
+    </div>
+
+    {% if photos %}
+    <div class="photo-grid" id="photoGrid">
+      {% for photo in photos %}
+      <div class="photo-item" onclick="openLightbox({{ loop.index0 }})">
+        <img src="{{ url_for('static', filename='uploads/' + photo.file_path) }}"
+             alt="{{ photo.caption or album.title }}" loading="lazy">
+        {% if photo.caption %}
+        <div class="photo-caption">{{ photo.caption }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+      <button class="lb-close" onclick="closeLightbox()"><i class="fas fa-times"></i></button>
+      <button class="lb-prev" onclick="event.stopPropagation();changePhoto(-1)"><i class="fas fa-chevron-left"></i></button>
+      <div class="lb-content" onclick="event.stopPropagation()">
+        <img id="lbImg" src="" alt="">
+        <div class="lb-caption" id="lbCaption"></div>
+        <div class="lb-credit" id="lbCredit"></div>
+      </div>
+      <button class="lb-next" onclick="event.stopPropagation();changePhoto(1)"><i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    {% else %}
+    <div class="empty-state large">
+      <i class="fas fa-camera"></i>
+      <h3>No photos in this album yet</h3>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const photos = [
+  {% for photo in photos %}
+  {
+    src: "{{ url_for('static', filename='uploads/' + photo.file_path) }}",
+    caption: "{{ photo.caption or '' }}",
+    credit: "{{ photo.credit or '' }}"
+  }{% if not loop.last %},{% endif %}
+  {% endfor %}
+];
+let current = 0;
+
+function openLightbox(idx) {
+  current = idx;
+  updateLightbox();
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+}
+function changePhoto(dir) {
+  current = (current + dir + photos.length) % photos.length;
+  updateLightbox();
+}
+function updateLightbox() {
+  const p = photos[current];
+  document.getElementById('lbImg').src = p.src;
+  document.getElementById('lbCaption').textContent = p.caption;
+  document.getElementById('lbCredit').textContent = p.credit ? 'Photo: ' + p.credit : '';
+}
+document.addEventListener('keydown', function(e) {
+  if (document.getElementById('lightbox').classList.contains('active')) {
+    if (e.key === 'ArrowLeft')  changePhoto(-1);
+    if (e.key === 'ArrowRight') changePhoto(1);
+    if (e.key === 'Escape')     closeLightbox();
+  }
+});
+</script>
+{% endblock %}

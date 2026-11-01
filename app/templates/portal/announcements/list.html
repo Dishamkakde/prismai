@@ -1,0 +1,40 @@
+{% extends 'portal_base.html' %}
+{% block title %}Announcements — PRISM AI{% endblock %}
+{% block breadcrumb %}Announcements{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-bullhorn"></i> Announcements</h1>
+    {% if current_user.is_admin() %}
+    <a href="{{ url_for('announcements.create_announcement') }}" class="btn-primary-sm"><i class="fas fa-plus"></i> New Announcement</a>
+    {% endif %}
+</div>
+<div class="category-filters">
+    <a href="{{ url_for('announcements.list_announcements') }}" class="filter-chip {{ 'active' if not selected_category }}">All</a>
+    {% for cat in categories %}
+    <a href="{{ url_for('announcements.list_announcements') }}?category={{ cat }}" class="filter-chip {{ 'active' if selected_category == cat }}">{{ cat }}</a>
+    {% endfor %}
+</div>
+{% if announcements %}
+<div class="announcements-portal-list">
+    {% for ann in announcements %}
+    <a href="{{ url_for('announcements.view_announcement', ann_id=ann.id) }}" class="ann-portal-card {{ 'pinned' if ann.is_pinned }} priority-{{ ann.priority.lower() }}">
+        <div class="apc-header">
+            <div class="apc-meta">
+                {% if ann.is_pinned %}<span class="pin-badge"><i class="fas fa-thumbtack"></i> Pinned</span>{% endif %}
+                <span class="apc-category">{{ ann.category }}</span>
+                {% if ann.priority != 'Normal' %}<span class="apc-priority priority-{{ ann.priority.lower() }}">{{ ann.priority }}</span>{% endif %}
+            </div>
+            <span class="apc-date">{{ ann.created_at.strftime('%b %d, %Y') }}</span>
+        </div>
+        <h3>{{ ann.title }}</h3>
+        <p>{{ ann.content[:150] }}{% if ann.content|length > 150 %}...{% endif %}</p>
+        <div class="apc-footer">
+            <span><i class="fas fa-user"></i> {{ ann.author.profile.full_name if ann.author.profile else '—' }}</span>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state large"><i class="fas fa-bullhorn"></i><h3>No announcements yet</h3></div>
+{% endif %}
+{% endblock %}

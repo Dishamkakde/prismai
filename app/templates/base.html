@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}PRISM AI — RNSIT{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/logo_icon.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="{{ url_for('main.index') }}" class="nav-brand">
+      <img src="{{ url_for('static', filename='img/logo_icon.png') }}" alt="PRISM AI" class="nav-logo">
+      <span class="brand-text">PRISM <span class="brand-accent">AI</span></span>
+    </a>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="{{ url_for('main.index') }}"   class="nav-link {% if request.endpoint=='main.index' %}active{% endif %}">Home</a></li>
+      <li><a href="{{ url_for('main.about') }}"   class="nav-link {% if request.endpoint=='main.about' %}active{% endif %}">About</a></li>
+      <li><a href="{{ url_for('main.events') }}"  class="nav-link {% if request.endpoint=='main.events' %}active{% endif %}">Events</a></li>
+      <li><a href="{{ url_for('main.projects') }}" class="nav-link {% if request.endpoint=='main.projects' %}active{% endif %}">Projects</a></li>
+      <li><a href="{{ url_for('gallery.public_gallery') }}" class="nav-link {% if 'gallery' in request.endpoint %}active{% endif %}">Gallery</a></li>
+      <li><a href="{{ url_for('main.team') }}"    class="nav-link {% if request.endpoint=='main.team' %}active{% endif %}">Team</a></li>
+      <li><a href="{{ url_for('main.contact') }}" class="nav-link {% if request.endpoint=='main.contact' %}active{% endif %}">Contact</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      {% if current_user.is_authenticated %}
+        {% set unread = current_user.notifications.filter_by(is_read=False).count() %}
+        <a href="{{ url_for('portal.notifications') }}" class="notif-btn">
+          <i class="fas fa-bell"></i>
+          {% if unread > 0 %}<span class="notif-badge">{{ unread }}</span>{% endif %}
+        </a>
+        <a href="{{ url_for('portal.dashboard') if not current_user.is_admin() else url_for('admin.dashboard') }}" class="btn-portal">
+          <i class="fas fa-th-large"></i> Dashboard
+        </a>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}" class="btn-login">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </a>
+      {% endif %}
+    </div>
+
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- FLASH MESSAGES -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-container" id="flashContainer">
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">
+      <i class="fas fa-{% if category=='success' %}check-circle{% elif category=='danger' %}exclamation-circle{% elif category=='warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+      <span>{{ message }}</span>
+      <button onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="PRISM AI" class="footer-logo-img">
+        <span>PRISM <strong>AI</strong></span>
+      </div>
+      <p>The Artificial Intelligence Club of RNS Institute of Technology.<br>Explore. Innovate. Impact.</p>
+      <div class="footer-social">
+        <a href="#" title="GitHub"><i class="fab fa-github"></i></a>
+        <a href="#" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+        <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+      </div>
+    </div>
+    <div class="footer-links">
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="{{ url_for('main.index') }}">Home</a></li>
+        <li><a href="{{ url_for('main.about') }}">About</a></li>
+        <li><a href="{{ url_for('main.events') }}">Events</a></li>
+        <li><a href="{{ url_for('main.projects') }}">Projects</a></li>
+        <li><a href="{{ url_for('main.team') }}">Team</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Members</h4>
+      <ul>
+        <li><a href="{{ url_for('auth.login') }}">Sign In</a></li>
+        <li><a href="{{ url_for('auth.signup') }}">Sign Up</a></li>
+        {% if current_user.is_authenticated %}
+        <li><a href="{{ url_for('portal.dashboard') }}">My Dashboard</a></li>
+        <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+        {% endif %}
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="{{ url_for('main.contact') }}">Get in Touch</a></li>
+        <li><a href="mailto:prismai@rnsit.ac.in">prismai@rnsit.ac.in</a></li>
+        <li><a href="#">RNSIT, Bengaluru</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; {{ 2025 }} PRISM AI — RNS Institute of Technology. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

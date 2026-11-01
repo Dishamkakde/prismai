@@ -1,0 +1,164 @@
+{% extends 'portal_base.html' %}
+{% block title %}My Profile — PRISM AI{% endblock %}
+{% block breadcrumb %}My Profile{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="profile-header-card">
+        <div class="profile-avatar-section">
+            {% if profile.profile_picture and profile.profile_picture != 'default_avatar.png' %}
+                <img src="{{ url_for('static', filename='uploads/' + profile.profile_picture) }}" alt="Avatar" class="profile-avatar-lg">
+            {% else %}
+                <div class="profile-avatar-placeholder-lg">{{ profile.full_name[0].upper() }}</div>
+            {% endif %}
+            <form method="POST" enctype="multipart/form-data" id="avatarForm">
+                <label class="avatar-upload-btn" for="avatarInput">
+                    <i class="fas fa-camera"></i> Change Photo
+                    <input type="file" id="avatarInput" name="profile_picture" accept="image/*" onchange="document.getElementById('avatarForm').submit()">
+                </label>
+            </form>
+        </div>
+        <div class="profile-header-info">
+            <h1>{{ profile.full_name }}</h1>
+            <p class="profile-role">{{ profile.designation or current_user.role.replace('_', ' ').title() }}</p>
+            <p class="profile-dept"><i class="fas fa-building"></i> {{ profile.department or 'Research & Projects' }}</p>
+            <p class="profile-member-id"><i class="fas fa-id-card"></i> {{ current_user.member_id }}</p>
+            {% if profile.github_url or profile.linkedin_url or profile.portfolio_url %}
+            <div class="profile-links">
+                {% if profile.github_url %}<a href="{{ profile.github_url }}" target="_blank"><i class="fab fa-github"></i> GitHub</a>{% endif %}
+                {% if profile.linkedin_url %}<a href="{{ profile.linkedin_url }}" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>{% endif %}
+                {% if profile.portfolio_url %}<a href="{{ profile.portfolio_url }}" target="_blank"><i class="fas fa-globe"></i> Portfolio</a>{% endif %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="profile-stats-row">
+            <div class="profile-stat">
+                <span>{{ current_user.projects|length }}</span>
+                <label>Projects</label>
+            </div>
+            <div class="profile-stat">
+                <span>{{ profile.contribution_points or 0 }}</span>
+                <label>Points</label>
+            </div>
+            <div class="profile-stat">
+                <span>{{ achievements|length }}</span>
+                <label>Achievements</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-grid">
+        <!-- EDITABLE FIELDS -->
+        <div class="profile-card editable">
+            <div class="card-header">
+                <h3><i class="fas fa-edit"></i> Edit Profile</h3>
+                {% if not current_user.is_admin() %}
+                <p style="font-size:0.78rem;color:var(--text-muted);margin-top:4px">
+                    <i class="fas fa-info-circle"></i>
+                    Changes you submit will be sent to the admin for approval before going live.
+                </p>
+                {% endif %}
+            </div>
+            <form method="POST" enctype="multipart/form-data" class="profile-form">
+                <div class="form-group">
+                    <label>Bio</label>
+                    <textarea name="bio" rows="3" placeholder="Tell us about yourself...">{{ profile.bio or '' }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Technical Skills</label>
+                    <input type="text" name="technical_skills" value="{{ profile.technical_skills or '' }}" placeholder="Python, Machine Learning, TensorFlow...">
+                    <small>Separate with commas</small>
+                </div>
+                <div class="form-group">
+                    <label>Areas of Interest</label>
+                    <input type="text" name="areas_of_interest" value="{{ profile.areas_of_interest or '' }}" placeholder="Computer Vision, NLP, Robotics...">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" name="phone" value="{{ profile.phone or '' }}" placeholder="10-digit number">
+                </div>
+                <div class="form-group">
+                    <label><i class="fab fa-github"></i> GitHub URL</label>
+                    <input type="url" name="github_url" value="{{ profile.github_url or '' }}" placeholder="https://github.com/username">
+                </div>
+                <div class="form-group">
+                    <label><i class="fab fa-linkedin"></i> LinkedIn URL</label>
+                    <input type="url" name="linkedin_url" value="{{ profile.linkedin_url or '' }}" placeholder="https://linkedin.com/in/username">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-globe"></i> Portfolio URL</label>
+                    <input type="url" name="portfolio_url" value="{{ profile.portfolio_url or '' }}" placeholder="https://yourportfolio.com">
+                </div>
+                {% if not current_user.is_admin() %}
+                <div class="form-group">
+                    <label><i class="fas fa-comment-alt"></i> Reason for changes</label>
+                    <textarea name="change_description" rows="2" placeholder="Briefly describe what you're updating and why..."></textarea>
+                    <small>Helps the admin review your request faster</small>
+                </div>
+                {% endif %}
+                <button type="submit" class="btn-primary-sm">
+                    {% if current_user.is_admin() %}
+                    <i class="fas fa-save"></i> Save Changes
+                    {% else %}
+                    <i class="fas fa-paper-plane"></i> Submit for Approval
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+
+        <!-- READ-ONLY INFO -->
+        <div class="profile-right-col">
+            <div class="profile-card">
+                <div class="card-header"><h3><i class="fas fa-info-circle"></i> Account Info</h3></div>
+                <div class="info-list">
+                    <div class="info-row"><span>Member ID</span><strong>{{ current_user.member_id }}</strong></div>
+                    <div class="info-row"><span>Email</span><strong>{{ current_user.email }}</strong></div>
+                    <div class="info-row"><span>USN</span><strong>{{ profile.usn or '—' }}</strong></div>
+                    <div class="info-row"><span>Branch</span><strong>{{ profile.branch or '—' }}</strong></div>
+                    <div class="info-row"><span>Academic Year</span><strong>{{ profile.academic_year or '—' }}</strong></div>
+                    <div class="info-row"><span>Department</span><strong>{{ profile.department or '—' }}</strong></div>
+                    <div class="info-row"><span>Designation</span><strong>{{ profile.designation or '—' }}</strong></div>
+                    <div class="info-row"><span>Joined</span><strong>{{ profile.joined_date.strftime('%b %d, %Y') if profile.joined_date else '—' }}</strong></div>
+                    <div class="info-row"><span>Status</span>
+                        <span class="status-badge {{ 'active' if profile.membership_status == 'Active' else 'inactive' }}">
+                            {{ profile.membership_status or 'Active' }}
+                        </span>
+                    </div>
+                </div>
+                <p class="info-note"><i class="fas fa-lock"></i> Official info is managed by administrators.</p>
+            </div>
+
+            {% if profile.technical_skills %}
+            <div class="profile-card">
+                <div class="card-header"><h3><i class="fas fa-code"></i> Skills</h3></div>
+                <div class="skills-cloud">
+                    {% for skill in profile.technical_skills.split(',') %}
+                        {% if skill.strip() %}<span class="skill-chip">{{ skill.strip() }}</span>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if achievements %}
+            <div class="profile-card">
+                <div class="card-header"><h3><i class="fas fa-trophy"></i> Achievements</h3></div>
+                <div class="achievements-mini">
+                    {% for a in achievements[:5] %}
+                    <div class="ach-mini">
+                        <i class="fas fa-medal"></i>
+                        <div>
+                            <p>{{ a.title }}</p>
+                            <small>{{ a.category }} &bull; +{{ a.points }} pts</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if achievements|length > 5 %}
+                    <a href="{{ url_for('achievements.my_achievements') }}" class="view-all-link">View all {{ achievements|length }} achievements →</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

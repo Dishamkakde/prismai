@@ -1,0 +1,55 @@
+{% extends 'portal_base.html' %}
+{% block title %}Gallery Management — Admin{% endblock %}
+{% block breadcrumb %}Admin / Gallery{% endblock %}
+{% block content %}
+<div class="page-title-row">
+  <h1><i class="fas fa-images"></i> Gallery Management</h1>
+  <a href="{{ url_for('gallery.create_album') }}" class="btn-primary-sm">
+    <i class="fas fa-plus"></i> New Album
+  </a>
+</div>
+
+{% if albums %}
+<div class="gallery-admin-grid">
+  {% for album in albums %}
+  <div class="gac-admin-card {{ 'published' if album.is_published else 'draft' }}">
+    <div class="gac-cover" style="height:160px">
+      {% if album.cover_image %}
+      <img src="{{ url_for('static', filename='uploads/' + album.cover_image) }}" alt="{{ album.title }}" style="width:100%;height:100%;object-fit:cover">
+      {% else %}
+      <div class="gac-no-cover" style="height:160px"><i class="fas fa-images"></i><span>No cover</span></div>
+      {% endif %}
+      <div class="gac-status-badge {{ 'published' if album.is_published else 'draft' }}">
+        {{ 'Published' if album.is_published else 'Draft' }}
+      </div>
+    </div>
+    <div class="gac-info">
+      <div class="gac-meta">
+        <span class="gac-category">{{ album.category or 'General' }}</span>
+        <span class="gac-date">{{ album.photo_count() }} photos</span>
+      </div>
+      <h3>{{ album.title }}</h3>
+      {% if album.event_date %}<p style="font-size:0.78rem;color:var(--text-muted)">{{ album.event_date.strftime('%b %d, %Y') }}</p>{% endif %}
+      <div style="display:flex;gap:8px;margin-top:0.75rem">
+        <a href="{{ url_for('gallery.manage_album', album_id=album.id) }}" class="btn-sm-primary">
+          <i class="fas fa-edit"></i> Manage
+        </a>
+        <a href="{{ url_for('gallery.view_album', album_id=album.id) }}" class="btn-sm-outline" target="_blank">
+          <i class="fas fa-eye"></i> View
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state large">
+  <i class="fas fa-images"></i>
+  <h3>No albums yet</h3>
+  <p>Create your first album to add photos to the gallery.</p>
+  <a href="{{ url_for('gallery.create_album') }}" class="btn-primary-sm" style="margin-top:1rem">
+    <i class="fas fa-plus"></i> Create Album
+  </a>
+</div>
+{% endif %}
+{% endblock %}

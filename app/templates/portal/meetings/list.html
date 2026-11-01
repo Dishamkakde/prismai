@@ -1,0 +1,73 @@
+{% extends 'portal_base.html' %}
+{% block title %}Meetings — PRISM AI{% endblock %}
+{% block breadcrumb %}Meetings{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-calendar-alt"></i> Meetings</h1>
+    {% if current_user.is_project_lead() %}
+    <a href="{{ url_for('meetings.schedule_meeting') }}" class="btn-primary-sm"><i class="fas fa-plus"></i> Schedule Meeting</a>
+    {% endif %}
+</div>
+
+<div class="meetings-tabs">
+    <button class="tab-btn active" onclick="showMeetTab('upcoming')">Upcoming ({{ upcoming|length }})</button>
+    <button class="tab-btn" onclick="showMeetTab('past')">Past ({{ past|length }})</button>
+</div>
+
+<div class="meet-tab-content active" id="meet-upcoming">
+    {% if upcoming %}
+    <div class="meetings-grid">
+        {% for m in upcoming %}
+        <a href="{{ url_for('meetings.meeting_detail', meeting_id=m.id) }}" class="meeting-card">
+            <div class="mc-date">
+                <span class="mc-day">{{ m.meeting_date.strftime('%d') }}</span>
+                <span class="mc-month">{{ m.meeting_date.strftime('%b %Y') }}</span>
+            </div>
+            <div class="mc-info">
+                <h4>{{ m.title }}</h4>
+                <p><i class="fas fa-clock"></i> {{ m.meeting_date.strftime('%H:%M') }} ({{ m.duration_minutes }} min)</p>
+                <p><i class="fas fa-{% if m.meeting_link %}video{% else %}map-marker-alt{% endif %}"></i> {{ m.venue or 'Online' }}</p>
+                <p><i class="fas fa-users"></i> {{ m.participants|length }} participants</p>
+                {% if m.agenda %}<p class="mc-agenda"><i class="fas fa-list"></i> Agenda available</p>{% endif %}
+            </div>
+            <span class="mc-type">{{ m.meeting_type.title() }}</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state large"><i class="fas fa-calendar"></i><h3>No upcoming meetings</h3></div>
+    {% endif %}
+</div>
+<div class="meet-tab-content" id="meet-past">
+    {% if past %}
+    <div class="meetings-grid muted">
+        {% for m in past %}
+        <a href="{{ url_for('meetings.meeting_detail', meeting_id=m.id) }}" class="meeting-card past">
+            <div class="mc-date">
+                <span class="mc-day">{{ m.meeting_date.strftime('%d') }}</span>
+                <span class="mc-month">{{ m.meeting_date.strftime('%b %Y') }}</span>
+            </div>
+            <div class="mc-info">
+                <h4>{{ m.title }}</h4>
+                <p><i class="fas fa-clock"></i> {{ m.meeting_date.strftime('%H:%M') }}</p>
+                <p><i class="fas fa-users"></i> {{ m.participants|length }} participants</p>
+                {% if m.minutes %}<p><i class="fas fa-file-alt"></i> Minutes available</p>{% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state large"><i class="fas fa-history"></i><h3>No past meetings</h3></div>
+    {% endif %}
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function showMeetTab(name) {
+    document.querySelectorAll('.meetings-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.meet-tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('meet-' + name).classList.add('active');
+    event.target.classList.add('active');
+}
+</script>
+{% endblock %}

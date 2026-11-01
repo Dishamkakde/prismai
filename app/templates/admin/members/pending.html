@@ -1,0 +1,78 @@
+{% extends 'portal_base.html' %}
+{% block title %}Pending Approvals — Admin{% endblock %}
+{% block breadcrumb %}Admin / Pending Approvals{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-user-clock"></i> Pending Member Approvals</h1>
+    <a href="{{ url_for('admin.members') }}" class="btn-sm-outline">
+        <i class="fas fa-users"></i> All Members
+    </a>
+</div>
+
+{% if pending %}
+<div class="pending-alert">
+    <i class="fas fa-exclamation-circle"></i>
+    <strong>{{ pending|length }}</strong> member{{ 's' if pending|length != 1 }} waiting for your approval
+</div>
+
+<div class="table-wrap">
+    <table class="portal-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Gmail</th>
+                <th>Role</th>
+                <th>Department</th>
+                <th>Registered</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in pending %}
+            <tr>
+                <td>
+                    <div class="member-name-cell">
+                        <div class="mnc-avatar">
+                            {{ user.profile.full_name[0].upper() if user.profile else 'M' }}
+                        </div>
+                        <div>
+                            <strong>{{ user.profile.full_name if user.profile else '—' }}</strong>
+                            {% if user.profile and user.profile.usn %}
+                            <p style="font-size:0.75rem;color:var(--text-muted)">{{ user.profile.usn }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </td>
+                <td>{{ user.email }}</td>
+                <td><span class="role-badge role-{{ user.role }}">{{ user.role.replace('_',' ').title() }}</span></td>
+                <td>{{ user.profile.department if user.profile else '—' }}</td>
+                <td>{{ user.created_at.strftime('%b %d, %Y') }}</td>
+                <td>
+                    <div class="approval-actions">
+                        <form method="POST" action="{{ url_for('admin.approve_member', user_id=user.id) }}" style="display:inline">
+                            <button type="submit" class="btn-approve">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                        </form>
+                        <form method="POST" action="{{ url_for('admin.reject_member', user_id=user.id) }}" style="display:inline"
+                              onsubmit="return confirm('Reject and deactivate this member?')">
+                            <button type="submit" class="btn-reject">
+                                <i class="fas fa-times"></i> Reject
+                            </button>
+                        </form>
+                        <a href="{{ url_for('admin.member_detail', user_id=user.id) }}" class="table-link">View</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state large">
+    <i class="fas fa-user-check"></i>
+    <h3>No pending approvals</h3>
+    <p>All registered members have been reviewed.</p>
+</div>
+{% endif %}
+{% endblock %}

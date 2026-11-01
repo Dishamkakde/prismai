@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Project Lead Login — PRISM AI{% endblock %}
+{% block content %}
+<div class="auth-page">
+    <div class="auth-left lead-left">
+        <div class="auth-brand">
+            <div class="brand-icon large">P</div>
+            <h2>PRISM <span>AI</span></h2>
+            <p>Lead your team to success.</p>
+        </div>
+        <div class="auth-features">
+            <div class="auth-feature"><i class="fas fa-tasks"></i> Assign & track tasks</div>
+            <div class="auth-feature"><i class="fas fa-clipboard-list"></i> Review team reports</div>
+            <div class="auth-feature"><i class="fas fa-calendar-plus"></i> Schedule meetings</div>
+            <div class="auth-feature"><i class="fas fa-comment-dots"></i> Provide feedback</div>
+        </div>
+    </div>
+    <div class="auth-right">
+        <div class="auth-card">
+            <div class="auth-card-header">
+                <div class="login-type-badge lead">
+                    <i class="fas fa-user-tie"></i> Project Lead Login
+                </div>
+                <h2>Lead Access</h2>
+                <p>Sign in to manage your projects and team</p>
+            </div>
+            <form class="auth-form" method="POST" action="{{ url_for('auth.login_lead') }}">
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email Address</label>
+                    <input type="email" name="email" placeholder="your@college.edu" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <div class="input-group">
+                        <input type="password" name="password" id="passwordInput" placeholder="Enter your password" required autocomplete="current-password">
+                        <button type="button" class="input-toggle" onclick="togglePassword('passwordInput', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="remember"> Remember me
+                    </label>
+                    <a href="{{ url_for('auth.forgot_password') }}" class="form-link">Forgot password?</a>
+                </div>
+                <button type="submit" class="btn-auth lead">
+                    <i class="fas fa-sign-in-alt"></i> Sign In as Lead
+                </button>
+            </form>
+            <div class="auth-note lead-note">
+                <i class="fas fa-info-circle"></i>
+                Project Lead accounts are assigned by administrators.
+            </div>
+            <div class="login-switcher">
+                <p>Not a project lead?</p>
+                <div class="switcher-links">
+                    <a href="{{ url_for('auth.login_member') }}" class="switcher-link member">
+                        <i class="fas fa-user"></i> Member Login
+                    </a>
+                    <a href="{{ url_for('auth.login_admin') }}" class="switcher-link admin">
+                        <i class="fas fa-shield-alt"></i> Admin Login
+                    </a>
+                </div>
+                <a href="{{ url_for('auth.login') }}" class="back-to-choice">
+                    <i class="fas fa-arrow-left"></i> Back to options
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

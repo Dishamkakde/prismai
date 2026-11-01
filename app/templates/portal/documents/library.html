@@ -1,0 +1,45 @@
+{% extends 'portal_base.html' %}
+{% block title %}Resource Library — PRISM AI{% endblock %}
+{% block breadcrumb %}Resources{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-folder-open"></i> Resource Library</h1>
+    {% if current_user.is_project_lead() %}
+    <a href="{{ url_for('documents.upload_document') }}" class="btn-primary-sm"><i class="fas fa-upload"></i> Upload</a>
+    {% endif %}
+</div>
+<div class="category-filters">
+    <a href="{{ url_for('documents.library') }}" class="filter-chip {{ 'active' if not selected_category }}">All</a>
+    {% for cat in categories %}
+    <a href="{{ url_for('documents.library') }}?category={{ cat }}" class="filter-chip {{ 'active' if selected_category == cat }}">{{ cat }}</a>
+    {% endfor %}
+</div>
+{% if documents %}
+<div class="documents-grid">
+    {% for doc in documents %}
+    <div class="doc-card">
+        <div class="doc-icon type-{{ doc.file_type }}">
+            <i class="fas fa-{% if doc.file_type in ['pdf'] %}file-pdf{% elif doc.file_type in ['doc','docx'] %}file-word{% elif doc.file_type in ['ppt','pptx'] %}file-powerpoint{% elif doc.file_type in ['xls','xlsx','csv'] %}file-excel{% elif doc.file_type in ['png','jpg','jpeg','gif'] %}file-image{% elif doc.file_type in ['zip'] %}file-archive{% else %}file-alt{% endif %}"></i>
+        </div>
+        <div class="doc-info">
+            <h4>{{ doc.title }}</h4>
+            {% if doc.description %}<p>{{ doc.description[:60] }}{% if doc.description|length > 60 %}...{% endif %}</p>{% endif %}
+            <div class="doc-meta">
+                <span class="doc-category">{{ doc.category }}</span>
+                <span class="doc-type">{{ doc.file_type|upper }}</span>
+            </div>
+            {% if doc.project %}<p class="doc-project"><i class="fas fa-folder"></i> {{ doc.project.title }}</p>{% endif %}
+            <p class="doc-uploader"><i class="fas fa-user"></i> {{ doc.uploader.profile.full_name if doc.uploader.profile else '—' }}</p>
+        </div>
+        <div class="doc-actions">
+            <a href="{{ url_for('documents.download_document', doc_id=doc.id) }}" class="btn-download" title="Download">
+                <i class="fas fa-download"></i>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state large"><i class="fas fa-folder-open"></i><h3>No documents yet</h3></div>
+{% endif %}
+{% endblock %}

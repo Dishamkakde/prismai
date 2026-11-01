@@ -1,0 +1,39 @@
+{% extends 'portal_base.html' %}
+{% block title %}Leaderboard — PRISM AI{% endblock %}
+{% block breadcrumb %}Achievements / Leaderboard{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <h1><i class="fas fa-chart-bar"></i> Contribution Leaderboard</h1>
+</div>
+{% if profiles %}
+<div class="leaderboard-wrap">
+    {% for profile in profiles %}
+    <div class="leaderboard-row {{ 'top-1' if loop.index == 1 else 'top-2' if loop.index == 2 else 'top-3' if loop.index == 3 else '' }}">
+        <div class="lb-rank">
+            {% if loop.index == 1 %}<i class="fas fa-crown gold"></i>
+            {% elif loop.index == 2 %}<i class="fas fa-medal silver"></i>
+            {% elif loop.index == 3 %}<i class="fas fa-medal bronze"></i>
+            {% else %}{{ loop.index }}{% endif %}
+        </div>
+        <div class="lb-avatar">
+            {% if profile.profile_picture and profile.profile_picture != 'default_avatar.png' %}
+            <img src="{{ url_for('static', filename='uploads/' + profile.profile_picture) }}" alt="">
+            {% else %}
+            <div class="lb-avatar-placeholder">{{ profile.full_name[0].upper() }}</div>
+            {% endif %}
+        </div>
+        <div class="lb-info">
+            <p class="lb-name">{{ profile.full_name }}</p>
+            <p class="lb-dept">{{ profile.department or 'Research & Projects' }}</p>
+        </div>
+        <div class="lb-points">
+            <span>{{ profile.contribution_points }}</span>
+            <small>pts</small>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state large"><i class="fas fa-chart-bar"></i><h3>No contributions recorded yet</h3></div>
+{% endif %}
+{% endblock %}
