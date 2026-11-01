@@ -2,14 +2,17 @@ services:
   - type: web
     name: prismai
     env: python
+    plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn "app:create_app()" --bind 0.0.0.0:$PORT
+    startCommand: gunicorn run:app
     envVars:
       - key: SECRET_KEY
         generateValue: true
-      - key: DATABASE_URL
-        value: sqlite:///prismai.db
+      - key: ADMIN_EMAIL
+        value: admin@prismai.edu
+      - key: ADMIN_PASSWORD
+        value: PrismAdmin@2025
       - key: FLASK_ENV
         value: production
-      - key: UPLOAD_FOLDER
-        value: app/static/uploads
+      - key: PYTHON_VERSION
+        value: 3.12.0
